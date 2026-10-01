@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-02",
+  "status": "completed",
+  "scope": "用户确认的青墨雅韵方案应用于全部前端页面，不含后端",
+  "designReference": "设计参考/青墨雅韵-v2.png",
+  "pages": ["home", "literature", "classical", "practice", "random", "favorites"],
+  "components": ["study-navbar", "mode-switch", "question-card", "empty-state", "study-icon"],
+  "tests": { "passed": 15, "failed": 0, "newQuestionCardTests": 3 },
+  "projectCheck": { "passed": true, "pages": 6, "components": 5, "sampleQuestions": 16, "packageFiles": 102, "packageSizeKiB": 147.7 },
+  "nativeCompile": { "passed": true, "wxmlFiles": 11, "wxssFiles": 12, "wxmlOutputBytes": 110890, "wxssOutputBytes": 47620 },
+  "guiVerification": {
+    "tool": "微信开发者工具 Stable v2.01.2510290",
+    "method": "真实 GUI 操作与窗口截图",
+    "390x844": ["首页双列模块和今日目标", "文学默写与背诵", "文学分页", "文言目录", "题型弹窗", "字词练习", "翻译默写与背诵", "长译文末题及底栏", "文言随机首组与末组", "收藏背诵与单页禁用翻页", "收藏分类空态"],
+    "375x667": ["首页及滚动后收藏入口", "文言目录", "翻译背诵", "长译文末题及底栏"],
+    "consoleFinal": { "errors": 0, "warnings": 6, "note": "可见游客模式 API 模拟返回和基础库 API 提示；未声称全部警告无害。" },
+    "observedToolIssue": "一次路由变化后画面滞后，重新编译恢复；后续返回导航正常。",
+    "screenshotDirectory": "青墨雅韵验收截图",
+    "screenshots": 16,
+    "overview": "青墨雅韵验收截图/页面总览.png"
+  },
+  "automation": { "passed": false, "reason": "本机游客项目连接官方自动化服务 12 秒超时，未重试；使用真实 GUI 完成页面验收。" },
+  "deviceVerification": "未进行手机真机验收",
+  "businessScope": { "backend": false, "formalQuestionBankAdded": false, "sampleQuestions": 16, "articleRows": 25, "favoriteAndMasteryIndependent": true, "storage": "本地存储沿用" },
+  "notes": ["截图为实际模拟器渲染，裁切与总览拼接不修改 UI 内容。", "字体、状态栏和原生胶囊随设备环境变化。", "原型还原阶段旧验收资料保留，当前视觉以本记录为准。"]
+}

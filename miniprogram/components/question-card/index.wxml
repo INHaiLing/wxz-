@@ -1,0 +1,18 @@
+<view class="card variant-{{variant}} {{isTranslation ? 'translation-card' : ''}}">
+  <view class="question-line">
+    <text class="number">{{number}}</text>
+    <view class="question-content">
+      <text wx:if="{{showTag || isTranslation}}" class="tag">{{isTranslation ? '重点翻译' : question.tag}}</text>
+      <view wx:if="{{isTranslation}}" class="stem original">{{translationStem}}</view>
+      <view wx:else class="stem"><text wx:for="{{segments}}" wx:key="key" class="{{item.isAnswer ? 'answer' : ''}} {{item.compactAnswer ? 'answer-compact' : ''}}">{{item.text}}</text></view>
+    </view>
+  </view>
+  <view class="star-hit {{question.favorite ? 'selected' : ''}}" bindtap="favorite" role="button" aria-label="{{question.favorite ? '取消收藏' : '收藏'}}" aria-pressed="{{question.favorite}}"><text class="star">{{question.favorite ? '★' : '☆'}}</text></view>
+  <view wx:if="{{isTranslation && mode === 'reciting'}}" class="translation-answer">
+    <text class="answer-caption">参考译文</text><text class="translation-text">{{translationAnswer}}</text>
+  </view>
+  <view wx:elif="{{isTranslation}}" class="translation-recall">
+    <text class="answer-caption">回忆这句话的译文</text><view class="recall-line"></view><view class="recall-line short"></view>
+  </view>
+  <view class="card-footer"><view class="master-hit" bindtap="master" role="button" aria-label="{{question.mastered ? '取消掌握' : '标记掌握'}}" aria-pressed="{{question.mastered}}"><view class="master {{question.mastered ? 'mastered' : ''}}"><text class="master-symbol">{{question.mastered ? '✓' : '○'}}</text><text>{{question.mastered ? '已掌握' : '标记掌握'}}</text></view></view></view>
+</view>

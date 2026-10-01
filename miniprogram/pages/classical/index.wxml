@@ -1,0 +1,56 @@
+<view class="classical-page">
+  <study-navbar title="文言文考点" theme="green" back="{{true}}" />
+  <view class="classical-body">
+    <view class="summary-card">
+      <view class="summary-copy">
+        <text class="summary-region">山东专升本 · 文言研习</text>
+        <text class="summary-title">循序精读，温故知新</text>
+        <text class="summary-caption">{{articleTotal}} 篇核心篇目 · {{completionPercent}}% 已完成</text>
+      </view>
+      <view class="ring-area">
+        <canvas id="article-progress" type="2d" class="progress-ring" />
+        <view class="ring-label"><view><text class="ring-value">{{learnedCount}}</text><text class="ring-total"> / {{articleTotal}}</text></view><text class="ring-caption">已学篇目</text></view>
+      </view>
+    </view>
+
+    <view class="specialties">
+      <view role="button" class="specialty-card" data-type="word" bindtap="onSpecialty" hover-class="card-pressed">
+        <view class="specialty-icon"><study-icon name="book" size="{{38}}" color="#1B4D3E" /></view>
+        <view class="specialty-copy"><text class="specialty-title">重点字词</text><text class="specialty-caption">知词义，通文意</text></view><text class="specialty-chevron">›</text>
+      </view>
+      <view role="button" class="specialty-card" data-type="translation" bindtap="onSpecialty" hover-class="card-pressed">
+        <view class="specialty-icon specialty-icon-amber"><study-icon name="translate" size="{{38}}" color="#C47A2B" /></view>
+        <view class="specialty-copy"><text class="specialty-title">重点翻译</text><text class="specialty-caption">读原句，明其意</text></view><text class="specialty-chevron">›</text>
+      </view>
+    </view>
+
+    <view class="catalog-heading"><text class="catalog-title">篇目目录</text><text class="catalog-count">共 {{articleTotal}} 篇</text></view>
+    <view class="filter-tabs">
+      <view role="button" wx:for="{{filters}}" wx:key="value" class="filter-tab {{filterStatus === item.value ? 'is-active' : ''}}" data-status="{{item.value}}" bindtap="onFilter" aria-label="{{item.label}}篇目">{{item.label}}</view>
+    </view>
+    <view wx:if="{{visibleCount}}" class="catalog-card">
+      <view wx:for="{{visibleArticles}}" wx:key="id" class="article-row {{item.placeholder ? 'is-placeholder' : ''}}" data-id="{{item.id}}" bindtap="onOpenArticle" hover-class="card-pressed" role="button" aria-label="{{item.title}}，{{item.statusLabel}}">
+        <text class="article-number number-{{item.status}}">{{item.index}}</text>
+        <view class="article-copy"><text class="article-title">{{item.placeholder ? item.title : '《' + item.title + '》'}}</text><text class="article-detail">{{item.total ? '已掌握 ' + item.completed + ' / ' + item.total + ' 个考点' : '学习内容待补充'}}</text></view>
+        <text class="article-status status-{{item.status}}">{{item.statusLabel}}</text><text class="article-chevron">›</text>
+      </view>
+    </view>
+    <empty-state wx:else title="没有符合状态的篇目" description="切换上方状态查看其他篇目" />
+    <text class="demo-note">当前进度根据已收录考点统计</text>
+  </view>
+
+  <view class="catalog-footer"><view class="continue-caption"><text class="continue-title">积跬步，至千里</text><text class="continue-subtitle">从上次学习的地方继续</text></view><view role="button" class="continue-button" bindtap="onContinue" hover-class="button-pressed"><text>继续学习</text><text class="button-arrow">→</text></view></view>
+
+  <view wx:if="{{modalVisible}}" class="modal-mask" bindtap="onCloseModal" catchtouchmove="stopTap">
+    <view class="article-dialog" catchtap="stopTap" role="dialog" aria-label="选择练习专项">
+      <view role="button" class="dialog-close" bindtap="onCloseModal" aria-label="关闭弹窗">×</view>
+      <text class="dialog-kicker">选一项，开始温习</text>
+      <text class="dialog-title">{{selectedArticle.placeholder ? selectedArticle.title : '《' + selectedArticle.title + '》'}}</text>
+      <text class="dialog-description">字词与译句，循序研习</text>
+      <view class="dialog-actions">
+        <view role="button" class="dialog-button" data-type="word" bindtap="onChooseType" hover-class="button-pressed"><study-icon name="book" size="{{36}}" color="#FFFFFF" /><text>重点字词专项</text><text class="dialog-arrow">→</text></view>
+        <view role="button" class="dialog-button translation-button" data-type="translation" bindtap="onChooseType" hover-class="card-pressed"><study-icon name="translate" size="{{36}}" color="#1B4D3E" /><text>重点翻译专项</text><text class="dialog-arrow">→</text></view>
+      </view>
+    </view>
+  </view>
+</view>

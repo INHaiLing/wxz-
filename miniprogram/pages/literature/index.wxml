@@ -1,0 +1,26 @@
+<view class="literature-page">
+  <study-navbar title="文学常识" back="{{true}}" />
+  <view class="literature-body">
+    <scroll-view class="category-scroll" scroll-x="{{true}}" scroll-left="{{categoryScrollLeft}}" scroll-with-animation="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+      <view class="category-row">
+        <view wx:for="{{categories}}" wx:key="id" class="category-pill {{categoryId === item.id ? 'category-selected' : ''}}" role="button" data-id="{{item.id}}" bindtap="changeCategory" hover-class="category-pressed">{{item.name}}</view>
+      </view>
+    </scroll-view>
+
+    <view class="mode-area"><mode-switch mode="{{mode}}" bind:change="changeMode" /></view>
+
+    <view wx:if="{{questions.length}}" class="questions-area">
+      <view wx:for="{{questions}}" wx:key="id" class="question-host">
+        <question-card question="{{item}}" mode="{{mode}}" number="{{groupIndex * pageSize + index + 1}}" variant="olive" show-tag="{{false}}" bind:favorite="toggleFavorite" bind:master="toggleMastered" />
+      </view>
+    </view>
+    <view wx:else class="literature-empty">
+      <empty-state title="暂无演示题目" description="该分类暂无演示内容，题库后续补充" action-text="查看先秦文学" bind:action="showFirstCategory" />
+    </view>
+  </view>
+
+  <view wx:if="{{questions.length}}" class="literature-actions">
+    <text class="page-indicator">第 <text class="current-page">{{groupIndex + 1}}</text> 页 / 共 {{groupTotal}} 页</text>
+    <view class="next-button" role="button" bindtap="nextGroup" hover-class="next-pressed"><text>{{isLastGroup ? '再看一遍' : '下一页'}}</text><text class="button-arrow">→</text></view>
+  </view>
+</view>

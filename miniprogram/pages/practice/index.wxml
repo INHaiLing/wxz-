@@ -1,0 +1,22 @@
+<view class="practice-page">
+  <study-navbar title="{{title}}" theme="green" back="{{true}}" />
+  <view class="practice-body">
+    <view class="practice-modes"><mode-switch mode="{{mode}}" theme="green" bindchange="onModeChange" /></view>
+    <view wx:if="{{total}}" class="practice-content">
+      <view class="practice-progress">
+        <view class="mastery-count"><text>已掌握</text><text class="mastery-value">{{completed}}</text><text>/ {{total}} 题</text></view>
+        <view class="progress-track"><view class="progress-fill" style="width: {{progressPercent}}%;" /></view>
+      </view>
+      <view class="question-list">
+        <view wx:for="{{questions}}" wx:key="id" class="question-wrap">
+          <question-card question="{{item}}" mode="{{mode}}" number="{{groupIndex * 5 + index + 1}}" variant="{{isWord ? 'practice-word' : 'green'}}" show-tag="{{true}}" bindfavorite="onFavorite" bindmaster="onMaster" />
+        </view>
+      </view>
+    </view>
+    <empty-state wx:else title="暂无演示内容" description="该篇目或专项暂无演示内容，题库后续补充" action-text="返回目录" bindaction="onEmptyAction" />
+  </view>
+  <view wx:if="{{total}}" class="practice-footer">
+    <view class="group-count"><text>第 </text><text class="current-group">{{groupIndex + 1}}</text><text> 组 / 共 {{groupCount}} 组</text></view>
+    <view role="button" class="next-button" bindtap="onNextGroup" hover-class="next-button-pressed"><text>{{nextLabel}}</text><text class="button-arrow">→</text></view>
+  </view>
+</view>

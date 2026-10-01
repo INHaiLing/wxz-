@@ -1,0 +1,75 @@
+Reference files:
+C:/Users/24429/Downloads/stitch_wechat_mini_program_ui_redesign/stitch_wechat_mini_program_ui_redesign/01/screen.png
+C:/Users/24429/Downloads/stitch_wechat_mini_program_ui_redesign/stitch_wechat_mini_program_ui_redesign/02/screen.png
+
+Use case: ui-mockup
+Primary request: Redesign and expand the two provided WeChat study UI reference images into ONE high-fidelity four-screen Chinese mobile UI presentation for “专升本语文备诵”. The user LIKES these references and specifically requests the “青墨雅韵” direction. Faithfully retain their quiet new-Chinese visual character and practical layouts, adapting the second reference's olive color into the approved deep bamboo green palette. This is a visual concept, not an implementation screenshot.
+
+Input image roles:
+Image 1 (01/screen.png): reference for the HOME layout, paper-like ivory background, white cards, serif headings, very light shadows, amber countdown, 2×2 entrance grid and floating fixed bottom learning capsule.
+Image 2 (02/screen.png): reference for STUDY question cards, categories, mode segmentation, numbered badges, inline highlighted answers, one star per card and separate mastery button. Correct its cramped title wrapping and cramped buttons. Replace its olive/lime palette with deep bamboo green. Do not reproduce accidental typos or unbalanced line breaks.
+
+Composition: ONE wide landscape image, approximately 2400×1450, FOUR equal-size tall front-facing mobile app panels in a clean horizontal row. The panels are proportional to roughly 390×880 logical px. Show full UI edges with subtle rounded outer clipping, no realistic phone hardware, no notch, no perspective, no hands or desk props. Each has a small iOS-like status bar at 9:41, native WeChat capsule aligned top right, logical safe bottom with modest home indicator. Outside the panels, a restrained serif board title “青墨雅韵” and small subtitle “专升本语文备诵 · 页面效果提案”. Small panel captions “01 首页看板”“02 文学背诵”“03 文言翻译”“04 收藏复习”. At bottom, a compact palette row and small “视觉概念 · 演示数据” note. No giant marketing title.
+
+EXACT USER COLOR SYSTEM:
+Primary #1B4D3E 黛绿 / 深竹青.
+Primary active and major CTAs #13382D.
+Page background #F7F8F5 warm off-white.
+Card surface #FFFFFF, faint border, tiny soft natural shadow.
+Text dark ink #242A27, supporting text #5C6460.
+Accent #C47A2B amber for countdown and favorite stars.
+Small accent label fill #FAF3E0.
+Mastered status #388E3C with check mark and explicit words.
+Answer highlight pale muted bamboo #E9F0EA, deep green lettering, subtle underline.
+No navy/blue theme, no yellow olive, no bright saturated emerald backgrounds, no neon, no heavy gradients.
+Material feel: warm quiet paper, extremely subtle tonal depth; absolutely no dirty parchment texture, strong fiber grain, ink splashes, mountains or bamboo paintings. New Chinese cultural atmosphere comes through editorial typography and spacing, not ornamental pictures.
+Chinese heading typography: Noto Serif SC / Songti SC-like, elegant and sturdy. Main text and numeric data: clean PingFang SC / Inter-like sans serif, except optional elegant serif countdown figure from reference 1. Body equivalent to 17–18px and 1.75 line height. 16px screen margins, 16–20px card padding, 12/16px corner system. Icons thin consistent outline. Buttons must be readable single-line labels with enough width. Clean simplified Chinese text, render quoted copy accurately. High detail, refined and realistically implementable UI.
+
+PANEL 1 HOME — closely follow Image 1:
+Light paper header. Green serif product title “专升本语文”, small “山东专升本” region badge placed below or beside title without colliding with native capsule.
+Large white overview card at top. Small amber-tinted label “温故而知新”; greeting “你好，备考同学” (NOT 研考生).
+At top right “距目标考试” and large amber “177” with small “天”.
+Subtle divider, three symmetric stats: “1 个 / 已背考点”, “1 天 / 背诵打卡”, “6% / 总体进度”. Very faint “文” watermark in a corner as in Image 1, never behind text.
+Section “核心备考专项” with tiny green vertical rule; small support “循序渐进”.
+2×2 white entrance tiles, slightly more compact than Image 1 so everything fits at comfortable text size:
+“文学常识”, line-icon book, description “按朝代分类背诵”, footer “收录考点 7题”.
+“文常随机练”, amber dice line-icon, description “随机抽取 · 每组5题”, footer “快速复习”.
+“文言文考点”, green pen/book outline icon, description “重点字词 · 句子翻译”, footer “篇目目录 25篇” (NOT 9篇).
+“文言随机测”, thin document icon, description “断句与字词强化”, footer “每组最多5题”.
+Below grid, full-width collection entrance: amber bookmark icon, title “我的收藏考点”, secondary “重点疑难题与考点复习”, chevron.
+At bottom a FIXED white rounded floating learning capsule with subtle shadow: left “今日目标背诵”, “1 / 20考点” and slim tiny progress bar; right deep-green primary button “继续背诵 →”. Full bottom safe area, no overlaps. No tab bar, login, avatar menu, ranking, purchase, advertisements or rewards.
+
+PANEL 2 LITERATURE RECITATION — preserve Image 2's learning layout:
+Deep-green navbar #1B4D3E with white back chevron and title “文学常识”, native light capsule; no wrapped navigation title.
+Horizontal category pills below: “先秦文学” selected deep green, “秦汉文学”, “魏晋南北朝”, partial next-pill “唐代文学” to communicate scrolling.
+Mode segmented control: left “默写自测”, right “背诵全览”. Right selected #13382D. All labels on ONE LINE.
+Four white numbered question cards with soft thin border, 16px corners, clean generous line-height. A fifth need not be squeezed in; natural scroll is expected. Each card: pale badge number at left, text body, one favorite star at upper right, fine dashed divider, separate mastery control in footer. Card 1 filled amber star and green “✓ 已掌握”. Card 2 filled amber star but outlined neutral “标记掌握”. Cards 3 and 4 unfilled star and “标记掌握”. No multiple stars per question.
+Readable exact stems and inline highlighted ANSWERS (pale bamboo background, bold deep-green text, thin underline):
+1 “《诗经》是我国第一部民间诗歌总集，收录诗歌305篇，又称《诗三百》。” Highlight “民间”“305”“诗三百”.
+2 “《诗经》体例分为风、雅、颂，表现手法为赋、比、兴，合称六义。” Highlight “风”“雅”“颂”“赋”“比”“兴”“六义”.
+3 “孔子是儒家学派的创始人，思想核心是仁。” Highlight “儒家”“仁”.
+4 “《论语》是由孔子的弟子及再传弟子编撰的语录体散文集。” Highlight “语录”.
+Bottom FIXED tidy pagination bar: “第1页 / 共2页”, deep green “下一页 →”, sufficient safe-area spacing. Content scrolls behind neither footer nor notch. No answer inputs or scores.
+
+PANEL 3 CLASSICAL TRANSLATION RECITATION:
+Same deep green learning navbar, back arrow, white title “劝学 · 重点翻译”, native capsule. Same mode segmentation: left “默写自测”, right SELECTED “背诵全览”. Slim progress strip “已掌握 0 / 4题”.
+Two complete spacious white cards with a third partially visible for scroll. Number and “重点翻译” small heading, one star at top-right, distinct “标记掌握” footer. First card filled amber star, second outlined star. All mastery controls are UNMASTERED to agree with 0/4.
+Card 1 ORIGINAL “青，取之于蓝，而青于蓝。”
+ANSWER in calm pale bamboo inset: “靛青从蓝草中提取，却比蓝草的颜色更青。”
+Card 2 ORIGINAL “故不积跬步，无以至千里。”
+ANSWER “所以不积累一步半步的路程，就没有办法到达千里之外。”
+Third card begins “锲而不舍，金石可镂。” but may be partially below scroll.
+Original sentence remains dark ink; answer deep bamboo green, readable 1.75 line-height. No tiny text to squeeze all questions.
+Bottom fixed bar: “第1组 / 共1组”, deep-green “再练一轮”. No fabricated score/results or input box.
+
+PANEL 4 FAVORITES:
+Same deep-green navbar with back arrow, white title “我的收藏考点”, native capsule.
+Retain category filters: two compact HORIZONTALLY SCROLLABLE rows. First shows “先秦文学” selected, “秦汉文学”, “魏晋南北朝”, partial next category. Second “文言字词”“文言翻译”“文言常识” neutral.
+Same mode segmentation, RIGHT “背诵全览” selected.
+White cards consistent with panel 2. ALL stars on ALL favorite cards MUST be filled amber because these are already collected. Separate mastering controls. Example:
+1 “《诗经》收录诗歌305篇，又称《诗三百》。” Inline highlights “305”“诗三百”; footer “✓ 已掌握” soft green.
+2 “《诗经》合称六义：风、雅、颂、赋、比、兴。” Highlight answer terms; footer “标记掌握”.
+3 “孔子是儒家学派的创始人。” Highlight “儒家”; footer “标记掌握”.
+Allow content to scroll. Bottom fixed bar “第1页 / 共1页”, disabled neutral gray “下一页”.
+No new features.
+Across all screens: coherent green/paper/amber theme, understated serif hierarchy, modern readable body, simple elegant outlines, practical fixed-bottom actions. Chinese labels must not break awkwardly or clip. This should look like the user's supplied home reference refined into a complete consistent WeChat study system, not like the prior navy design.

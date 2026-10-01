@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-02",
+  "source": "真实微信开发者工具 GUI 截图，仅裁切模拟器范围；总览只拼接和添加说明。",
+  "screenshots": [
+    {
+      "file": "01-首页-390.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "02-文学常识-默写.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "03-文学常识-背诵.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "04-文言目录.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "05-目录题型弹窗.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "06-字词专项.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "08-翻译专项-背诵.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "08b-翻译长句与底栏.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "07-翻译专项-默写.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "09-文言随机练.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "11-我的收藏.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "12-收藏分类空态.png",
+      "simulator": "390x844",
+      "capturedSize": "375x812"
+    },
+    {
+      "file": "13-首页-375.png",
+      "simulator": "375x667",
+      "capturedSize": "420x748"
+    },
+    {
+      "file": "14-文言目录-375.png",
+      "simulator": "375x667",
+      "capturedSize": "420x748"
+    },
+    {
+      "file": "15-翻译专项-375.png",
+      "simulator": "375x667",
+      "capturedSize": "420x748"
+    },
+    {
+      "file": "16-翻译末题-375.png",
+      "simulator": "375x667",
+      "capturedSize": "420x748"
+    }
+  ]
+}

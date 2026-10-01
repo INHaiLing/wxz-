@@ -1,0 +1,8 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "study-navbar": "/components/study-navbar/index",
+    "study-icon": "/components/study-icon/index",
+    "empty-state": "/components/empty-state/index"
+  }
+}

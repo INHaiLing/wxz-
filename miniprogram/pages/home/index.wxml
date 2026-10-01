@@ -1,0 +1,77 @@
+<view class="home-page">
+  <study-navbar title="专升本语文" theme="paper" region="山东专升本" back="{{false}}" />
+  <view class="home-body">
+    <view class="overview-card">
+      <text class="overview-watermark" aria-hidden="true">文</text>
+      <view class="greeting-row">
+        <view class="greeting">
+          <view class="hello-badge"><view class="badge-dot"></view><text>温故而知新</text></view>
+          <text class="greeting-title">你好，备考同学</text>
+        </view>
+        <view class="countdown-card">
+          <text class="countdown-caption">距目标考试</text>
+          <view class="countdown-value"><text class="countdown-number">{{countdown}}</text><text class="countdown-unit">天</text></view>
+        </view>
+      </view>
+      <view class="overview-divider"></view>
+      <view class="stats-row">
+        <view class="stat">
+          <view class="stat-value">{{stats.masteredCount}}<text class="stat-unit">个</text></view>
+          <text class="stat-label">已背考点</text>
+        </view>
+        <view class="stat stat-middle">
+          <view class="stat-value">{{stats.studyDays}}<text class="stat-unit">天</text></view>
+          <text class="stat-label">背诵打卡</text>
+        </view>
+        <view class="stat">
+          <view class="stat-value">{{stats.completion}}<text class="stat-unit">%</text></view>
+          <text class="stat-label">总体进度</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-heading"><view class="section-title"><view class="section-mark"></view><text>核心备考专项</text></view><text class="section-caption">循序渐进 · 稳步提升</text></view>
+    <view class="module-grid">
+      <view class="entry-card" role="button" data-page="literature" bindtap="openModule" hover-class="entry-pressed">
+        <view class="entry-icon"><study-icon name="book" size="{{42}}" color="#1B4D3E" /></view>
+        <text class="entry-title">文学常识</text>
+        <text class="entry-description">按朝代分类背诵</text>
+        <view class="entry-footer"><text>收录考点</text><view class="entry-total"><text class="total-number">{{literatureCount}}</text><text>题</text></view></view>
+      </view>
+      <view class="entry-card" role="button" data-page="random" data-source="literature" bindtap="openModule" hover-class="entry-pressed">
+        <view class="entry-icon amber-icon"><study-icon name="dice" size="{{42}}" color="#C47A2B" /></view>
+        <text class="entry-title">文常随机练</text>
+        <text class="entry-description">随机抽取 · 每组5题</text>
+        <view class="entry-footer"><text>快速复习</text><view class="entry-chevron"></view></view>
+      </view>
+      <view class="entry-card" role="button" data-page="classical" bindtap="openModule" hover-class="entry-pressed">
+        <view class="entry-icon"><study-icon name="classical" size="{{42}}" color="#1B4D3E" /></view>
+        <text class="entry-title">文言文考点</text>
+        <text class="entry-description">重点字词 · 句子翻译</text>
+        <view class="entry-footer"><text>篇目目录</text><view class="entry-total"><text class="total-number">{{articleCount}}</text><text>篇</text></view></view>
+      </view>
+      <view class="entry-card" role="button" data-page="random" data-source="classical" bindtap="openModule" hover-class="entry-pressed">
+        <view class="entry-icon neutral-icon"><study-icon name="translate" size="{{42}}" color="#5C6460" /></view>
+        <text class="entry-title">文言随机测</text>
+        <text class="entry-description">字词与翻译强化</text>
+        <view class="entry-footer"><text>每组最多 <text class="total-number">5</text> 题</text><text class="sample-count">共{{classicalCount}}题</text></view>
+      </view>
+    </view>
+
+    <view class="favorites-card" role="button" data-page="favorites" bindtap="openModule" hover-class="entry-pressed">
+      <view class="favorites-icon"><study-icon name="favorite" size="{{44}}" color="#C47A2B" /></view>
+      <view class="favorites-copy"><text class="favorites-title">我的收藏考点</text><text class="favorites-description">重点疑难题与考点复习</text></view>
+      <view class="entry-chevron favorites-chevron"></view>
+    </view>
+  </view>
+
+  <view class="today-dock">
+    <view class="today-card">
+      <view class="today-copy">
+        <view class="today-heading"><text class="today-title">今日目标背诵</text><view class="today-count"><text class="today-number">{{stats.todayCount}}</text><text> / {{stats.todayTarget}} 考点</text></view></view>
+        <view class="today-track"><view class="today-progress" style="width: {{todayPercent}}%;"></view></view>
+      </view>
+      <view class="continue-button" role="button" bindtap="continueLearning" hover-class="continue-pressed"><text>继续背诵</text><text class="button-arrow">→</text></view>
+    </view>
+  </view>
+</view>

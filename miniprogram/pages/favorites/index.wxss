@@ -1,0 +1,20 @@
+page { background: #f7f8f5; }
+
+.favorites-page { min-height: 100vh; background: #f7f8f5; }
+.favorites-content { padding-top: 24rpx; padding-bottom: 152rpx; padding-bottom: calc(152rpx + env(safe-area-inset-bottom)); }
+.category-scroll { width: 100%; white-space: nowrap; }
+.category-scroll + .category-scroll { margin-top: 12rpx; }
+.category-row { display: inline-flex; align-items: center; min-width: 100%; padding: 0 24rpx; }
+.category-pill { flex-shrink: 0; min-height: 62rpx; margin-right: 10rpx; padding: 0 26rpx; border: 1px solid #e6e8e2; border-radius: 34rpx; color: #5c6460; background: #fff; font-size: 26rpx; line-height: 60rpx; }
+.category-pill:last-child { margin-right: 0; }
+.category-pill-active { border-color: #1b4d3e; color: #fff; background: #1b4d3e; font-weight: 600; }
+.favorites-mode { margin: 24rpx 24rpx 28rpx; }
+.favorites-questions { margin: 0 24rpx; }
+.favorites-question + .favorites-question { margin-top: 20rpx; }
+.favorites-footer { position: fixed; z-index: 20; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: space-between; min-height: 112rpx; padding: 18rpx 36rpx 22rpx; padding-bottom: calc(22rpx + env(safe-area-inset-bottom)); border-top: 1px solid #edf0e9; border-radius: 30rpx 30rpx 0 0; background: rgba(255,255,255,.98); box-shadow: 0 -6rpx 28rpx rgba(27,77,62,.035); }
+.page-counter { color: #5c6460; font-size: 24rpx; line-height: 1.5; white-space: nowrap; }
+.counter-current { color: #1b4d3e; font-family: Georgia, "Times New Roman", serif; font-size: 30rpx; font-weight: 600; }
+.next-page { display: flex; flex-shrink: 0; align-items: center; justify-content: center; min-width: 240rpx; min-height: 80rpx; margin-left: 20rpx; padding: 16rpx 28rpx; border: 1px solid #13382d; border-radius: 22rpx; color: #fff; background: linear-gradient(115deg,#1b4d3e,#13382d); box-shadow: 0 5rpx 14rpx rgba(27,77,62,.14); font-size: 29rpx; font-weight: 600; line-height: 1.4; }
+.next-page-pressed { opacity: .86; }
+.next-page.is-disabled { border-color: #b7bcba; color: #fff; background: #b7bcba; box-shadow: none; }
+.button-arrow { margin-left: 16rpx; font-size: 34rpx; font-weight: 400; line-height: 1; }

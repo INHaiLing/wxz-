@@ -1,0 +1,25 @@
+<view class="favorites-page">
+  <study-navbar title="我的收藏考点" theme="emerald" back="{{true}}" />
+  <view class="favorites-content">
+    <view class="category-navigation">
+      <scroll-view class="category-scroll" wx:for="{{categoryRows}}" wx:for-item="row" wx:key="id" scroll-x="{{true}}" scroll-into-view="{{row.id === activeCategoryRow ? activeCategoryElement : ''}}" show-scrollbar="{{false}}">
+        <view class="category-row">
+          <view id="category-{{item.id}}" class="category-pill {{categoryId === item.id ? 'category-pill-active' : ''}}" wx:for="{{row.items}}" wx:key="id" data-id="{{item.id}}" role="button" aria-label="{{item.name}}" aria-pressed="{{categoryId === item.id}}" bindtap="onCategoryChange">{{item.name}}</view>
+        </view>
+      </scroll-view>
+    </view>
+    <view class="favorites-mode">
+      <mode-switch mode="{{mode}}" theme="emerald" bindchange="onModeChange" />
+    </view>
+    <view class="favorites-questions" wx:if="{{questions.length}}">
+      <view class="favorites-question" wx:for="{{questions}}" wx:key="id">
+        <question-card question="{{item}}" mode="{{mode}}" number="{{index + 1}}" variant="favorites" show-tag="{{false}}" bindfavorite="onFavorite" bindmaster="onMaster" />
+      </view>
+    </view>
+    <empty-state wx:else title="{{totalFavorites ? '这个分类还没有收藏' : '还没有收藏考点'}}" description="去文学常识或文言文学习，点击题目旁的星标收藏。" action-text="去学习" bindaction="onGoStudy" />
+  </view>
+  <view class="favorites-footer" wx:if="{{questions.length}}">
+    <view class="page-counter">第 <text class="counter-current">{{pageNumber}}</text> 页 / 共 {{pageCount}} 页</view>
+    <view class="next-page {{pageCount <= 1 ? 'is-disabled' : ''}}" role="button" aria-disabled="{{pageCount <= 1}}" aria-label="{{nextLabel}}" hover-class="{{pageCount <= 1 ? 'none' : 'next-page-pressed'}}" bindtap="onNextPage"><text>{{nextLabel}}</text><text class="button-arrow" aria-hidden="true">→</text></view>
+  </view>
+</view>

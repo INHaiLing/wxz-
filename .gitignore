@@ -1,0 +1,17 @@
+node_modules/
+project.private.config.json
+.devtools/
+*.log
+
+# Local Python backend environment, secrets and generated data
+backend/.venv/
+backend/.env
+backend/.local/
+backend/staticfiles/
+backend/media/
+backend/*.sqlite3
+backend/*.sqlite3-*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.playwright-mcp/

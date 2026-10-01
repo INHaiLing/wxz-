@@ -1,0 +1,156 @@
+{
+  "date": "2026-10-02",
+  "scope": "原生微信小程序纯前端原型还原与本地交互，正式题库后续提供",
+  "result": "passed_with_limitations",
+  "summary": "工程检查、12 项业务测试、原生模板和样式编译通过；真实模拟器页面人工检查通过；CLI 自动化未通过，未做真机或自动逐像素验收。",
+  "projectCheck": {
+    "result": "passed",
+    "command": "npm run check",
+    "pages": 6,
+    "components": 5,
+    "sampleQuestions": 16,
+    "packageFiles": 62,
+    "mainPackageKiB": 100.5,
+    "coverage": [
+      "页面与组件注册",
+      "JS 与 JSON 语法",
+      "题目 ID 与答案占位符",
+      "题目篇目关联",
+      "包体大小"
+    ]
+  },
+  "businessTests": {
+    "result": "passed",
+    "command": "npm test",
+    "passed": 12,
+    "failed": 0,
+    "files": [
+      "tests/study-store.test.js",
+      "tests/question-utils.test.js",
+      "tests/classical-page.test.js"
+    ],
+    "coverage": [
+      "收藏与掌握独立，跨页读取及重新初始化恢复",
+      "统计按题去重，取消掌握保留学习日历史",
+      "无效 ID 和损坏存储处理",
+      "保存失败时保留内存状态并提示",
+      "模式与随机题序恢复",
+      "篇目进度按实际演示题计算",
+      "随机洗牌不修改输入，本轮不重复，末组不补题",
+      "背诵展开答案，默写隐藏答案",
+      "文常和文言题源分离，文言收藏分类过滤",
+      "目录继续学习跳过不可练习篇目",
+      "字词已掌握时继续翻译练习",
+      "目录优先恢复原题型、题序与页码"
+    ]
+  },
+  "nativeCompilation": {
+    "result": "passed",
+    "command": "npm run check:native",
+    "checkedAt": "2026-10-01T16:28:34.971Z",
+    "wccVersion": "Wechat WXML Compiler, core version v0.5vv_20211229_syb_scopedata, cli version 20230804",
+    "wcscVersion": "WeChat Stylesheet Compiler, Version v0.4me_20200724_db",
+    "wxmlFiles": 11,
+    "wxssFiles": 12,
+    "wxmlOutputBytes": 98930,
+    "wxssOutputBytes": 39098,
+    "runtimeVerifiedByCompiler": false,
+    "rawReport": ".devtools/native-compile/result.json"
+  },
+  "manualVerification": {
+    "result": "passed_for_observed_scenarios",
+    "method": "直接操作真实微信开发者工具模拟器，观察页面与交互，保存实际截图",
+    "runtime": {
+      "developerToolsVersion": "Stable 2.01.2510290",
+      "SDKVersion": "3.17.3",
+      "platform": "devtools",
+      "lastStableErrorCount": 0,
+      "lastStableWarningCount": 6,
+      "warningsClassified": false
+    },
+    "viewports": [
+      {
+        "width": 390,
+        "height": 844,
+        "coverage": "全部 6 页、篇目弹窗、模式、长答案、随机末组、收藏空分类"
+      },
+      {
+        "width": 375,
+        "height": 667,
+        "coverage": "首页首屏及滚动后的继续背诵，恢复后的字词练习"
+      }
+    ],
+    "scenarios": [
+      "首页入口可进入文学、文言目录、随机与收藏页面；返回操作可用",
+      "文学模式切换隐藏或显示绿色答案，第一页 5 题，末组 2 题",
+      "文学题标记掌握后，首页显示 1 个考点、1 个学习日和 6% 实际完成率",
+      "本地学习统计经历重新编译后仍保留",
+      "文言目录双列 25 条、环形进度、状态筛选和继续学习布局可见",
+      "点击劝学打开两个题型按钮的弹窗，字词与翻译路由可进入",
+      "字词题干分行、首题题型标签、单行篇目进度与末组操作可见",
+      "翻译背诵长答案自然换行，页面没有横向溢出",
+      "文言随机第一页 5 题，下一组为 4 题且显示 2/2，再练一轮回到 1/2",
+      "随机长页可滚动访问底部换组按钮",
+      "收藏保留两排分类与模式切换，已有文学收藏可展示",
+      "收藏最后一页下一页按钮禁用，切换无收藏分类显示空态与去学习入口",
+      "375×667 首页可滚动访问继续背诵，并恢复上次劝学字词练习"
+    ],
+    "observedDemoState": {
+      "masteredQuestions": 1,
+      "studyDays": 1,
+      "completionPercent": 6,
+      "totalSampleQuestions": 16
+    },
+    "stateNote": "截图包含验收操作产生的本地收藏与掌握记录；源码首次使用的默认记录为空。"
+  },
+  "screenshots": {
+    "source": "真实模拟器截图裁切页面区域，未重绘页面内容",
+    "pageCount": 13,
+    "overview": "doc/验收截图/页面总览.png",
+    "overviewStateCount": 8,
+    "files": [
+      "doc/验收截图/01-首页-模拟器.png",
+      "doc/验收截图/02-文学常识-默写.png",
+      "doc/验收截图/03-文学常识-背诵.png",
+      "doc/验收截图/04-文言文目录.png",
+      "doc/验收截图/05-篇目题型弹窗.png",
+      "doc/验收截图/06-劝学字词.png",
+      "doc/验收截图/07-劝学翻译-背诵.png",
+      "doc/验收截图/08-文言随机练习.png",
+      "doc/验收截图/09-随机末组.png",
+      "doc/验收截图/10-我的收藏.png",
+      "doc/验收截图/11-收藏分类空态.png",
+      "doc/验收截图/12-首页-375宽.png",
+      "doc/验收截图/13-字词练习-375宽.png"
+    ]
+  },
+  "automationAttempt": {
+    "date": "2026-10-01",
+    "result": "failed",
+    "tool": "微信开发者工具 CLI auto 与 miniprogram-automator",
+    "runtime": {
+      "model": "iPhone 12/13 (Pro)",
+      "windowWidth": 390,
+      "windowHeight": 844,
+      "SDKVersion": "3.17.3"
+    },
+    "capturedScreenshots": 0,
+    "timeoutSeconds": 180,
+    "observations": [
+      "自动化期间工具弹出更改 AppID 失败，包含 touristappid 错误",
+      "截图调用没有完成，达到验收脚本 180 秒超时"
+    ],
+    "cause": "未完全定位；不将此次自动化视为通过",
+    "failure": "开发者工具运行验收超过180秒，请检查编译窗口或自动化端口。",
+    "rawReport": ".devtools/automation/result.json",
+    "futureOutputDirectory": ".devtools/automation/"
+  },
+  "limitations": [
+    "没有真机验收，375 视口仅补查首页与字词练习",
+    "没有自动逐像素差异比对，字体、状态栏和换行受运行环境影响",
+    "按已确认规则调整原型中的模式顺序、重复文字与星标、目录搜索和弹窗内容",
+    "仅 16 道本地演示题，完整正式题库后续替换；部分篇目为待补充占位",
+    "本地记录没有跨设备同步，无后端或云数据库",
+    "开发工具 6 个警告未逐项归因"
+  ]
+}

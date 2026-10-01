@@ -1,0 +1,43 @@
+Use case: ui-mockup
+Create ONE polished, high-fidelity UI concept board for an existing Chinese WeChat mini-program for 专升本语文 learning. This is an original visual redesign, not a screenshot recolor. One wide landscape raster image, approximately 2400×1440, with FOUR equally sized tall flat app screens in a neat horizontal row. Large enough Chinese text to inspect. Show full screens, no perspective, no photographic phone hardware, no device notches, no hand, no 3D scene. Soft neutral board background. Each screen is proportioned like 390×844 and has a WeChat status bar, compact native capsule at the top-right, appropriate safe area, and a modest home indicator. Outside the screens, a small editorial title “墨蓝 · 纸白” and subtitle “专升本语文｜学习界面视觉提案”, four small captions “01 学习首页”“02 文言目录”“03 翻译背诵”“04 收藏复习”. A small palette strip at the bottom, hex codes as given, and label “概念方案 · 演示数据”. The four interfaces have an identical coherent design system.
+
+Palette: primary ink navy #2F4B6E; warm paper background #F7F5F0; clean white cards #FFFFFF; main text #243244; supporting text #5D6976; pale answer panel #EDF1F6; fine divider #E4E7EB; restrained warm bronze-gold #9B6A2E ONLY for favorite stars; muted jade #2F6B55 ONLY for mastered state, accompanied by check mark and text. NO bright green theme, lime, neon, saturated gradients, large dark reading surfaces, faux parchment texture, mountains, bamboo, calligraphy illustrations, gaming elements, or decorative mascots. Modern, literate, understated Chinese educational app. Crisp typography, excellent contrast. Chinese sans-serif for body, subtle editorial weight for titles. Comfortable body text equivalent to 17–18 logical px, line-height about 1.7. Generous but practical whitespace, screen side margins 20 logical px, 16–20 px card padding, soft 14 px corners, almost no shadow. All visible wording must be clean correct simplified Chinese, not pseudo text. Small stars have generous invisible tap regions; mastering is a distinct labeled control, not another star.
+
+SCREEN 1 — HOME:
+Compact title “专升本语文”.
+Greeting “你好，同学” and small secondary line “每天一点，稳步积累”.
+A small subdued countdown chip “目标考试 · 177天”.
+The first, most prominent white learning card says “今日背诵” with “1 / 20 个”, slim progress bar, secondary “上次学到：劝学 · 重点翻译”, and a large navy action button “继续背诵 →”. An understated numbered stats row below: “已掌握 1”“学习 1天”“完成率 6%”.
+Section heading “专项学习”. Four restrained white tiles in a 2×2 grid with consistent outline icons and readable text: “文学常识” / “按分类背诵 · 7题”; “文言文” / “字词与翻译 · 9题”; “文常随机” / “每组最多5题”; “文言随机” / “每组最多5题”. Below them a full-width white row with gold star icon, “我的收藏”, supporting “回顾收藏的薄弱考点” and chevron. All five existing module entrances are visible. No bottom tab bar, no login, rankings, rewards, new modules, advertisements, or streak gamification.
+
+SCREEN 2 — CLASSICAL CATALOG:
+Light header with back chevron, title “文言文”, capsule.
+Heading “篇目学习” and supporting “按篇目掌握字词与翻译”.
+Compact white progress summary: “25篇” and “已学 0 / 25”, small thin navy ring at 0%, no enormous marketing banner.
+Two equal outlined actions “字词专项”“翻译专项”.
+Filters in one clear row “全部”“未学”“练习中”“已学”, navy-selected “全部”, other labels neutral.
+A SINGLE-COLUMN catalog list with comfortable row heights, fine separators and right chevrons. Exact rows: “01 寡人之于国也”“02 劝学”“03 师说”“04 谏太宗十思疏”“05 滕王阁序”“06 岳阳楼记”. Status “未学” secondary. The 劝学 row has a restrained pale-blue selection background. No search field. Full-width navy “继续学习” at bottom with safe area. More rows are implicitly available by scrolling, never squeeze all 25 into one screen.
+
+SCREEN 3 — LONG-TEXT RECITATION:
+Light header with back arrow and title “劝学 · 重点翻译”, capsule.
+Same segmented mode control used across learning pages, exact labels left “默写版”, right “背诵版”. Right segment is navy-selected.
+Small slim progress “已掌握 0 / 4题”.
+Two complete large white question cards and the beginning of a third to imply scrolling. Card header shows question number and small type “重点翻译”; a generously spaced gold outlined favorite star at top right, first card star filled gold. Clear ORIGINAL SENTENCE followed by a pale-blue ANSWER block with navy medium-weight text:
+Card 1 original “青，取之于蓝，而青于蓝。” Answer “靛青从蓝草中提取，却比蓝草的颜色更青。”
+Card 2 original “故不积跬步，无以至千里。” Answer “所以不积累一步半步的路程，就没有办法到达千里之外。”
+Card 3 begins “积善成德，而神明自得。”
+Each complete card has a separate footer text button “标记掌握”, navy outlined, separate from favorite. Do not falsely mark any of these translation cards mastered, since progress is zero.
+Comfortable reading layout, never shrink text to force five cards into a screen. Bottom compact action bar “第1组 / 共1组” and navy “再练一遍”, unobscured by long content and safe area. No answer input field, score, keyboard, auto grading, or voice controls.
+
+SCREEN 4 — FAVORITE REVIEW:
+Light header with back arrow and title “我的收藏”, capsule. Small secondary line “把薄弱考点，再记牢一点”.
+Retain classification browsing: two compact HORIZONTALLY SCROLLABLE pill rows; row one visibly contains “先秦文学”“秦汉文学”“魏晋南北朝” and a clipped next category hint; row two “文言字词”“文言翻译”“文言常识”. Only “先秦文学” navy-selected. Identical mode segmented control with left “默写版”, right “背诵版”, right selected.
+White reading cards with a filled GOLD star at top right and separate mastery control at footer. Readable sample content:
+1 “《诗经》收录诗歌305篇，又称《诗三百》。” Make “305” and “诗三百” navy bold. Footer “✓ 已掌握” muted jade.
+2 “《诗经》体例分为风、雅、颂，表现手法为赋、比、兴，合称六义。” Answers navy bold. Footer “标记掌握” navy outlined.
+3 starts “孔子是儒家学派的创始人。” Show it only if space allows; otherwise natural scroll hint.
+Bottom “第1页 / 共1页” and visibly disabled gray button “下一页”. Keep safe area.
+Match all typography, icons, radii, spacing, and color semantics across four screens. This must look like a refined realistic implementable WeChat learning product, not a wireframe or promotional poster.
+
+Targeted edit applied after reviewing the first draft:
+Use case: precise-object-edit / ui-mockup. Edit the provided existing FOUR-screen Chinese learning UI design board. Change only the favorite-state icons inside the FOURTH, rightmost screen titled 我的收藏: its second and third question cards currently have outlined gold stars; replace both with solid filled gold stars in exactly the same position and size, matching the first card's filled gold star. These are already-favorited questions. Keep the first filled star, every mastery control, ALL Chinese text, the other three screens, palette, layout, resolution, spacing, fonts and all other pixels unchanged. Do not alter the outlined stars in the third (翻译背诵) screen: those remain outlined correctly. No other changes.

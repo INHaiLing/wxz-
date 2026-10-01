@@ -1,0 +1,17 @@
+page { background: #F7F8F5; }
+.practice-page { min-height: 100vh; color: #242A27; background: #F7F8F5; }
+.practice-body { padding: 24rpx 24rpx calc(160rpx + env(safe-area-inset-bottom)); }
+.practice-modes { margin-bottom: 28rpx; }
+.practice-progress { display: flex; align-items: center; gap: 18rpx; margin: 0 8rpx 28rpx; }
+.mastery-count { display: flex; align-items: baseline; gap: 10rpx; flex-shrink: 0; color: #747C76; font-size: 24rpx; line-height: 1.5; white-space: nowrap; }
+.mastery-value { margin-left: 6rpx; color: #1B4D3E; font-family: Georgia, "Songti SC", serif; font-size: 30rpx; font-weight: 700; }
+.progress-track { min-width: 0; height: 16rpx; flex: 1; overflow: hidden; border-radius: 20rpx; background: #E4EAE4; }
+.progress-fill { height: 100%; border-radius: inherit; background: #1B4D3E; transition: width .2s ease; }
+.question-list { display: flex; flex-direction: column; gap: 20rpx; }
+.question-wrap { min-width: 0; }
+.practice-footer { position: fixed; z-index: 20; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: space-between; gap: 20rpx; box-sizing: border-box; min-height: 116rpx; padding: 18rpx 32rpx calc(18rpx + env(safe-area-inset-bottom)); border: 1rpx solid #E6E8E2; border-bottom: 0; border-radius: 30rpx 30rpx 0 0; background: rgba(255, 255, 255, .98); box-shadow: 0 -8rpx 32rpx rgba(27, 77, 62, .04); }
+.group-count { min-width: 0; color: #747C76; font-size: 24rpx; line-height: 1.5; }
+.current-group { color: #1B4D3E; font-family: Georgia, "Songti SC", serif; font-size: 30rpx; font-weight: 700; }
+.next-button { display: flex; align-items: center; justify-content: center; gap: 18rpx; flex-shrink: 0; box-sizing: border-box; min-width: 236rpx; height: 80rpx; margin: 0; padding: 0 28rpx; border: 1rpx solid #1B4D3E; border-radius: 22rpx; background: linear-gradient(120deg, #1B4D3E, #13382D); color: #FFFFFF; box-shadow: 0 6rpx 14rpx rgba(27, 77, 62, .13); font-size: 30rpx; font-weight: 600; line-height: 1.3; }
+.button-arrow { font-size: 36rpx; line-height: 1; font-weight: 400; }
+.next-button-pressed { background: #13382D; opacity: .9; }
