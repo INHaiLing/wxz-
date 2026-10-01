@@ -1,6 +1,6 @@
 Reference files:
-C:/Users/24429/Downloads/stitch_wechat_mini_program_ui_redesign/stitch_wechat_mini_program_ui_redesign/01/screen.png
-C:/Users/24429/Downloads/stitch_wechat_mini_program_ui_redesign/stitch_wechat_mini_program_ui_redesign/02/screen.png
+用户提供的参考截图：stitch_wechat_mini_program_ui_redesign/01/screen.png（仓库外素材）
+用户提供的参考截图：stitch_wechat_mini_program_ui_redesign/02/screen.png（仓库外素材）
 
 Use case: ui-mockup
 Primary request: Redesign and expand the two provided WeChat study UI reference images into ONE high-fidelity four-screen Chinese mobile UI presentation for “专升本语文备诵”. The user LIKES these references and specifically requests the “青墨雅韵” direction. Faithfully retain their quiet new-Chinese visual character and practical layouts, adapting the second reference's olive color into the approved deep bamboo green palette. This is a visual concept, not an implementation screenshot.

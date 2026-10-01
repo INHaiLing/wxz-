@@ -1,8 +1,8 @@
 {
   "name": "chinese-study-miniprogram",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
-  "description": "微信小程序纯前端原型演示",
+  "description": "专升本语文学习小程序与独立题库管理后台",
   "scripts": {
     "test": "node --test tests/*.test.js",
     "check": "node scripts/check-project.js",
