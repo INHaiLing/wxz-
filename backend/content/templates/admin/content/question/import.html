@@ -1,0 +1,110 @@
+{% extends "admin/import_export/import.html" %}
+{% load admin_urls %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  .qi-import {
+    --qi-border: var(--color-base-200, #e2e8f0);
+    --qi-surface: #fff;
+    --qi-soft: var(--color-base-50, #f8fafc);
+    --qi-heading: var(--color-base-900, #0f172a);
+    --qi-muted: var(--color-base-500, #64748b);
+    --qi-link: var(--color-primary-700, #0f766e);
+    min-width: 0; max-width: 100%; overflow: hidden; line-height: 1.65;
+  }
+  .dark .qi-import {
+    --qi-border: var(--color-base-700, #334155);
+    --qi-surface: var(--color-base-900, #0f172a);
+    --qi-soft: var(--color-base-800, #1e293b);
+    --qi-heading: var(--color-base-100, #f1f5f9);
+    --qi-muted: var(--color-base-400, #94a3b8);
+    --qi-link: var(--color-primary-300, #5eead4);
+  }
+  .qi-import h2 { color: var(--qi-heading); font-size: 17px; font-weight: 650; margin: 24px 0 12px; }
+  .qi-import p { margin: 10px 0; }
+  .qi-import a { color: var(--qi-link); text-decoration: underline; text-underline-offset: 3px; }
+  .qi-intro { padding: 20px 24px; margin-bottom: 24px; border: 1px solid var(--qi-border); border-radius: 12px; background: var(--qi-soft); }
+  .qi-intro h2 { margin-top: 0; }
+  .qi-intro p:last-child { margin-bottom: 0; }
+  .qi-summary { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .qi-summary span { padding: 4px 10px; border: 1px solid var(--qi-border); border-radius: 6px; background: var(--qi-soft); }
+  .qi-import .qi-note { font-size: 13px; color: var(--qi-muted); }
+  .qi-confirm { margin: 20px 0 28px; padding: 16px 20px; border: 1px solid var(--qi-border); border-radius: 10px; }
+  .qi-confirm p { margin-top: 0; }
+  .qi-confirm .submit-row { margin-top: 16px; }
+  .qi-errors { padding: 14px 18px; margin: 16px 0 24px; border: 1px solid #fda4af; border-radius: 8px; background: #fff1f2; color: #9f1239; }
+  .qi-errors ul { padding-left: 20px; list-style: disc; }
+  .qi-errors li { margin: 6px 0; overflow-wrap: anywhere; }
+  .dark .qi-errors { border-color: #9f1239; background: #3b1720; color: #fecdd3; }
+  .qi-table-scroll { width: 100%; max-width: 100%; overflow-x: auto; border: 1px solid var(--qi-border); border-radius: 10px; margin: 12px 0 24px; }
+  .qi-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; background: var(--qi-surface); }
+  .qi-table th, .qi-table td { padding: 12px 16px; text-align: left; vertical-align: top; border-right: 1px solid var(--qi-border); border-bottom: 1px solid var(--qi-border); line-height: 1.7; }
+  .qi-table th { background: var(--qi-soft); color: var(--qi-heading); font-size: 13px; font-weight: 650; white-space: nowrap; }
+  .qi-table th:last-child, .qi-table td:last-child { border-right: 0; }
+  .qi-table tr:last-child td { border-bottom: 0; }
+  .qi-table .qi-cell { width: 112px; white-space: normal; overflow-wrap: anywhere; }
+  .qi-table td:first-child .qi-cell { width: 52px; font-weight: 600; color: var(--qi-link); }
+  .qi-table td:nth-child(2) .qi-cell { width: 180px; }
+  .qi-table td:nth-child(3) .qi-cell { width: 90px; }
+  .qi-table td:nth-child(6) .qi-cell { width: 80px; }
+  .qi-table td:nth-child(8) .qi-cell { width: 48px; }
+  .qi-table td:nth-child(9) .qi-cell { width: 340px; }
+  .qi-table td:nth-child(n+10) .qi-cell { width: 150px; }
+  .qi-table ins { background: #dcfce7 !important; color: #14532d; text-decoration: none; }
+  .qi-table del { background: #ffe4e6 !important; color: #9f1239; }
+  .dark .qi-table ins { background: #12392e !important; color: #b7f7db; }
+  .dark .qi-table del { background: #4c1d2b !important; color: #fecdd3; }
+  @media (max-width: 640px) { .qi-intro { padding: 16px; } .qi-confirm { padding: 14px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="qi-import">
+<div class="qi-intro">
+  <h2>题库草稿导入</h2>
+  <p>下载模板 → 填写“题库”工作表 → 预检 → 确认写入草稿 → 在后台发布。上限：5 MiB、5000 题、32 个答案列。</p>
+  <p><a href="{{ import_template_url }}">下载 XLSX 模板（含填写说明、例题和分类/篇目 ID）</a></p>
+  <p>题目 ID 决定新增或更新；不会按题干猜测。任何一行错误都不写入；无变化行不会重复创建。预览有效期 30 分钟。</p>
+</div>
+{% if confirmation_error %}
+  <div class="qi-errors" role="alert">{{ confirmation_error }}</div>
+  <p><a href="{{ import_url }}">返回并重新上传预检</a></p>
+{% endif %}
+{% if result %}
+  <h2>预检汇总</h2>
+  <div class="qi-summary"><span>新增 {{ result.totals.new }}</span><span>修改 {{ result.totals.update }}</span><span>无变化 {{ result.totals.skip }}</span><span>校验错误 {{ result.totals.invalid }}</span><span>处理错误 {{ result.totals.error }}</span></div>
+  <p class="qi-note">以下行号按数据行计数；Excel 行号需加 1（首行为表头）。</p>
+{% endif %}
+{% if confirm_form %}
+<form class="qi-confirm" action="{% url opts|admin_urlname:'process_import' %}" method="post">
+  {% csrf_token %}{{ confirm_form.as_p }}
+  <p>请核对下方新增、修改及无变化内容。确认仅写入草稿，不会发布；若题目在预览后被其他人修改，本批会拒绝写入。</p>
+  <div class="submit-row"><button class="bg-primary-600 text-white px-4 py-2 rounded-default" type="submit">确认整批写入草稿</button></div>
+</form>
+{% elif form %}
+  {{ form.non_field_errors }}
+  {% include "admin/import_export/import_form.html" %}
+{% endif %}
+{% if result %}
+  {% if result.has_errors %}
+    <h2>预检未通过</h2><div class="qi-errors" role="alert"><ul>
+    {% for error in result.base_errors %}<li>{{ error.error }}</li>{% endfor %}
+    {% for line, errors in result.row_errors %}{% for error in errors %}<li>Excel 第 {{ line|add:'1' }} 行：{{ error.error }}</li>{% endfor %}{% endfor %}
+    </ul></div>
+  {% endif %}
+  {% if result.has_validation_errors %}
+    <h2>需要修正的数据行</h2><div class="qi-errors" role="alert"><ul>
+    {% for row in result.invalid_rows %}<li>Excel 第 {{ row.number|add:'1' }} 行：{{ row.error }}</li>{% endfor %}
+    </ul></div>
+  {% endif %}
+  {% if result.valid_rows %}
+    <h2>题目草稿预览（尚未写入）</h2>
+    <p class="qi-note">可在表格内左右滚动查看全部答案列。绿色表示新增内容，红色删除线表示原内容；空单元格表示该字段未填写。</p>
+    <div class="qi-table-scroll" tabindex="0" role="region" aria-label="题目导入预览，可左右滚动"><table class="qi-table"><thead><tr><th scope="col">结果</th>{% for header in result.diff_headers %}<th scope="col">{{ header }}</th>{% endfor %}</tr></thead><tbody>
+    {% for row in result.valid_rows %}<tr><td><div class="qi-cell">{% if row.import_type == 'new' %}新增{% elif row.import_type == 'update' %}修改{% else %}无变化{% endif %}</div></td>{% for field in row.diff %}<td><div class="qi-cell">{{ field }}</div></td>{% endfor %}</tr>{% endfor %}
+    </tbody></table></div>
+  {% endif %}
+{% endif %}
+</div>
+{% endblock %}
