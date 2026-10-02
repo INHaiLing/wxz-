@@ -8,6 +8,8 @@ from common.limits import check_rate
 from content.models import LearningConfiguration
 from .models import Order
 from .services import create_order, order_payload, prepare_payment
+from .synchronization import query_payment
+from .protocol import MAX_BYTES, invalid, parse_payload
 
 
 class StrictInput(serializers.Serializer):
@@ -66,3 +68,23 @@ class PaymentPrepareView(StudentAPIView):
         check_rate('payment-prepare',str(request.user.pk),10)
         data=StrictInput(data=request.data); data.is_valid(raise_exception=True)
         return Response(prepare_payment(request.user,request.auth,order_id,require_key(request.headers.get('Idempotency-Key'))),headers={'Cache-Control':'no-store, private'})
+
+
+class QueryJSONParser(JSONParser):
+    def parse(self, stream, media_type=None, parser_context=None):
+        raw = stream.read(MAX_BYTES + 1)
+        if not raw.lstrip().startswith(b"{"):
+            raise invalid()
+        return parse_payload(raw)
+
+
+class PaymentQueryView(StudentAPIView):
+    parser_classes = (QueryJSONParser,)
+
+    def post(self, request, order_id):
+        _query(request)
+        check_rate("payment-query", request.user.pk, 10)
+        data = StrictInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        result = query_payment(request.user, order_id, require_key(request.headers.get("Idempotency-Key")))
+        return Response(result, headers={"Cache-Control": "no-store, private"})
