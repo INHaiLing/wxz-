@@ -16,4 +16,5 @@ urlpatterns = [
     path("api/student/v1/", include("accounts.student_urls")),
     path("api/student/v1/", include("entitlements.student_urls")),
     path("api/student/v1/", include("activation.student_urls")),
+    path("api/student/v1/", include("content.student_urls")),
 ]

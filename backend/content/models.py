@@ -5,7 +5,7 @@ import uuid
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, router, transaction
 
 
@@ -286,3 +286,38 @@ class QuestionRevision(QuestionContent):
 
     def delete(self, *args, **kwargs):
         raise ValidationError("历史发布修订不能物理删除。")
+
+
+class LearningConfiguration(models.Model):
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    page_size = models.PositiveSmallIntegerField(
+        "每页题数／统一免费题量", default=20,
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        help_text="文言每篇目全部题型合计提供这一数量的免费题。",
+    )
+    daily_target = models.PositiveSmallIntegerField(
+        "默认每日目标", default=20,
+        validators=[MinValueValidator(1), MaxValueValidator(1000)],
+    )
+    exam_date = models.DateField("考试日期", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "学习配置"
+        verbose_name_plural = verbose_name
+        constraints = [
+            models.CheckConstraint(condition=models.Q(pk=1), name="content_learning_config_singleton"),
+            models.CheckConstraint(condition=models.Q(page_size__gte=1, page_size__lte=100), name="content_learning_page_size_range"),
+            models.CheckConstraint(condition=models.Q(daily_target__gte=1, daily_target__lte=1000), name="content_learning_daily_target_range"),
+        ]
+
+    @classmethod
+    def current(cls):
+        """Read-only fallback; a public GET must never initialize configuration."""
+        return cls.objects.filter(pk=1).first() or cls()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "全站学习配置"
