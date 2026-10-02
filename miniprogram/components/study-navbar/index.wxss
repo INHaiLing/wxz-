@@ -1,0 +1,11 @@
+:host { display: block; position: sticky; top: 0; z-index: 40; }
+.navbar { color: #FFFFFF; background: #1B4D3E; }
+.bar { position: relative; display: flex; align-items: center; }
+.back-hit { position: absolute; top: 0; bottom: 0; left: 8rpx; width: 88rpx; display: flex; align-items: center; justify-content: center; z-index: 2; }
+.chevron { width: 20rpx; height: 20rpx; border-bottom: 4rpx solid currentColor; border-left: 4rpx solid currentColor; transform: rotate(45deg); }
+.title-wrap { width: 100%; text-align: center; box-sizing: border-box; }
+.title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 34rpx; line-height: 1.4; font-weight: 600; font-family: "Songti SC", "Noto Serif SC", STSong, SimSun, serif; }
+.theme-paper { color: #1B4D3E; background: #F7F8F5; border-bottom: 1px solid #ECEDE8; }
+.home-brand { display: flex; align-items: center; min-width: 0; width: 100%; padding-left: 32rpx; box-sizing: border-box; }
+.brand-title { flex-shrink: 0; white-space: nowrap; font-family: "Songti SC", "Noto Serif SC", STSong, SimSun, serif; font-size: 36rpx; line-height: 1.4; font-weight: 700; letter-spacing: 1rpx; }
+.region { display: block; min-width: 0; margin-left: 16rpx; padding: 3rpx 12rpx; border: 1px solid #DEE9E2; border-radius: 24rpx; color: #1B4D3E; background: #F0F5F1; font-size: 21rpx; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: "Songti SC", STSong, SimSun, serif; }

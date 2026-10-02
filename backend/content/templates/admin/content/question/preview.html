@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% block extrahead %}{{ block.super }}
+<style>
+.question-preview { max-width: 1100px; color: #334155; }
+.question-preview .summary { padding: 18px 22px; border: 1px solid #cbd5e1; border-radius: 12px; margin-bottom: 22px; background: #f8fafc; }
+.question-preview .summary p { margin: 6px 0; line-height: 1.7; }
+.question-preview .preview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.question-preview .card { border: 1px solid #cbd5e1; border-radius: 14px; padding: 24px; background: #fff; }
+.question-preview h2 { font-size: 19px; color: #0f766e; font-weight: 600; margin-bottom: 20px; }
+.question-preview .stem { font-size: 18px; line-height: 2; white-space: pre-wrap; overflow-wrap: anywhere; }
+.question-preview .answer { color: #0f766e; font-weight: 600; }
+.question-preview .return-link { display: inline-block; margin-top: 24px; color: #0f766e; font-weight: 600; }
+@media (max-width: 780px) { .question-preview .preview-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="question-preview">
+  <div class="summary">
+    <p><strong>{{ question.id }}</strong> · {{ question.get_source_display }} · {{ question.get_type_display }} · {{ status }}</p>
+    <p>这里预览的是已保存的草稿。草稿修改后需重新发布，题库接口才会读取新内容。</p>
+    <p>首版接口仅供有权限的后台账户使用，发布不会向未登录用户公开题库。</p>
+  </div>
+  <div class="preview-grid">
+    <section class="card"><h2>默写 · 回忆答案</h2><p class="stem">{% for segment in writing_segments %}<span>{{ segment.text }}</span>{% endfor %}</p></section>
+    <section class="card"><h2>背诵 · 查看答案</h2><p class="stem">{% for segment in reciting_segments %}<span{% if segment.answer %} class="answer"{% endif %}>{{ segment.text }}</span>{% endfor %}</p></section>
+  </div>
+  <a class="return-link" href="{{ change_url }}">返回题目详情</a>
+</div>
+{% endblock %}

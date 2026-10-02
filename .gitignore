@@ -1,0 +1,20 @@
+node_modules/
+project.private.config.json
+.devtools/
+*.log
+
+# Local Python backend environment, secrets and generated data
+backend/.venv/
+backend/.env
+backend/.local/
+backend/staticfiles/
+backend/media/
+backend/*.sqlite3
+backend/*.sqlite3-*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.playwright-mcp/
+
+# Keep the user's editable questionnaire local; commit the scrubbed shared copy.
+/doc/后端需求待确认问题-v1.docx

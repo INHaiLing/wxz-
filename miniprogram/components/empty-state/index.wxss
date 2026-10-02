@@ -1,0 +1,11 @@
+:host { display: block; }
+.empty { text-align: center; padding: 76rpx 36rpx 64rpx; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
+.symbol { position: relative; display: flex; align-items: center; justify-content: center; width: 144rpx; height: 144rpx; margin: 0 auto 30rpx; border-radius: 50%; background: #EBF0E9; }
+.empty-book { width: 62rpx; height: 74rpx; padding: 20rpx 12rpx; border: 3rpx solid #6A8775; border-radius: 8rpx; box-sizing: border-box; transform: rotate(-7deg); }
+.book-line { height: 3rpx; margin-bottom: 12rpx; background: #92A596; border-radius: 2rpx; }
+.book-line.short { width: 70%; }
+.spark { position: absolute; right: 7rpx; top: 2rpx; color: #C47A2B; font-size: 44rpx; }
+.title { color: #1B4D3E; font-size: 34rpx; line-height: 1.5; font-weight: 600; font-family: "Songti SC", STSong, SimSun, serif; }
+.description { max-width: 520rpx; margin: 18rpx auto 0; font-size: 28rpx; line-height: 1.8; color: #6B746D; }
+.action { display: inline-flex; align-items: center; justify-content: center; min-height: 88rpx; margin-top: 32rpx; padding: 16rpx 40rpx; border-radius: 24rpx; background: #13382D; color: #FFFFFF; font-size: 29rpx; box-sizing: border-box; }
+.arrow { margin-left: 24rpx; }

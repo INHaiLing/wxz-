@@ -1,0 +1,6 @@
+<view class="empty">
+  <view class="symbol"><view class="empty-book"><view class="book-line"></view><view class="book-line short"></view></view><text class="spark">✧</text></view>
+  <view class="title">{{title}}</view>
+  <view class="description">{{description}}</view>
+  <view wx:if="{{actionText}}" class="action" bindtap="action" role="button">{{actionText}}<text class="arrow">→</text></view>
+</view>

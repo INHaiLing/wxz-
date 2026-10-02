@@ -1,0 +1,8 @@
+<view class="modes theme-{{theme}}">
+  <view class="mode {{mode === 'writing' ? 'active' : ''}}" data-mode="writing" bindtap="change" role="button" aria-label="默写自测" aria-pressed="{{mode === 'writing'}}">
+    <view class="mode-icon writing-icon"><view class="pencil"></view></view><text>默写自测</text>
+  </view>
+  <view class="mode {{mode === 'reciting' ? 'active' : ''}}" data-mode="reciting" bindtap="change" role="button" aria-label="背诵全览" aria-pressed="{{mode === 'reciting'}}">
+    <view class="mode-icon reading-icon"><view class="book-left"></view><view class="book-right"></view></view><text>背诵全览</text>
+  </view>
+</view>

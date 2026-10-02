@@ -1,0 +1,15 @@
+{
+  "description": "专升本语文学习小程序前端演示",
+  "appid": "touristappid",
+  "projectname": "专升本语文学习",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "miniprogram/",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false,
+    "minifyWXML": true
+  }
+}
