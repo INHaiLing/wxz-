@@ -47,6 +47,8 @@ class Order(ServiceOnlyModel):
             models.CheckConstraint(condition=models.Q(price_fen__gt=0), name="payment_positive_price"),
             models.CheckConstraint(condition=models.Q(scope=SCOPE), name="payment_single_scope"),
             models.CheckConstraint(condition=models.Q(environment__in=(0, 1)), name="payment_environment"),
+            models.UniqueConstraint(fields=("platform_order_id",), condition=~models.Q(platform_order_id=""), name="payment_platform_order_unique"),
+            models.UniqueConstraint(fields=("transaction_id",), condition=~models.Q(transaction_id=""), name="payment_transaction_unique"),
         )
 
 
@@ -66,3 +68,32 @@ class PaymentTask(ServiceOnlyModel):
         verbose_name = "支付补偿任务"
         verbose_name_plural = verbose_name
         constraints = (models.UniqueConstraint(fields=("order", "kind"), name="payment_unique_task"),)
+        permissions = (("reschedule_paymenttask", "可以确认并重调度失败支付任务"),)
+
+
+class PaymentEvent(ServiceOnlyModel):
+    key = models.CharField(primary_key=True, max_length=64)
+    order = models.ForeignKey(Order, on_delete=models.PROTECT, null=True, blank=True, related_name="events")
+    kind = models.CharField(max_length=64)
+    external_id = models.CharField(max_length=128, blank=True)
+    request_digest = models.CharField(max_length=64)
+    outcome = models.CharField(max_length=16)
+    error_code = models.CharField(max_length=64, blank=True)
+    details = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "支付平台事件"
+        verbose_name_plural = verbose_name
+        ordering = ("-created_at", "key")
+
+
+class AccessTokenCache(ServiceOnlyModel):
+    app_id = models.CharField(primary_key=True, max_length=64)
+    ciphertext = models.TextField(blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "微信接口令牌缓存（加密）"
+        verbose_name_plural = verbose_name
