@@ -30,6 +30,7 @@ class WeChatIdentity(models.Model):
 
 class StudentSession(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="student_sessions")
+    identity = models.ForeignKey(WeChatIdentity, on_delete=models.PROTECT, null=True, blank=True, related_name="sessions")
     token_digest = models.CharField("会话摘要", max_length=64, unique=True)
     encrypted_session_key = models.TextField("本次登录加密微信会话密钥")
     created_at = models.DateTimeField("创建时间", auto_now_add=True)
