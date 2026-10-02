@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div class="p-6">
+  <p>订单 {{ task.order_id }}，任务 {{ task.get_kind_display }}，状态 {{ task.get_status_display }}，已尝试 {{ task.attempts }} 次。</p>
+  <p>请先核对平台状态。确认后只重新安排服务端核验，不会直接付款、发权或退款。</p>
+  {% if error %}<p class="text-red-600">{{ error }}</p>{% else %}
+  <form method="post">{% csrf_token %}
+    <input type="hidden" name="confirmation_token" value="{{ confirmation_token }}">
+    <input type="hidden" name="confirm" value="yes">
+    <label for="reason">核查和重调度理由</label><textarea id="reason" name="reason" required maxlength="500"></textarea>
+    <button type="submit">确认重新排队</button>
+  </form>{% endif %}
+  <a href="{{ back_url }}">返回任务</a>
+</div>
+{% endblock %}
