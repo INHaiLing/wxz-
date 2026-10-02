@@ -52,6 +52,14 @@ class PublishedAccessTests(StudentContentFixture):
         self.assertTrue(can_access_question(None, self.other))
         self.assertTrue(can_access_question(None, self.literature))
 
+    def test_literature_scope_has_its_own_limit_and_tied_orders_use_stable_ids(self):
+        second = self.make_question("literature-second", source="literature", type="fact", order=2)
+        paid = self.make_question("literature-third", source="literature", type="fact", order=3)
+        self.assertEqual(free_question_ids("literature", self.category.pk), [self.literature.pk, second.pk])
+        self.assertFalse(can_access_question(None, paid))
+        tied = self.make_question("00-tied", order=1)
+        self.assertEqual(free_question_ids("classical", self.article.pk), [tied.pk, self.first.pk])
+
     def test_scope_is_based_on_snapshot_not_edited_draft(self):
         self.first.article = self.other_article
         self.first.sort_order = 100
