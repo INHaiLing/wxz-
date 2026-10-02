@@ -12,6 +12,14 @@ os.environ["DB_ENGINE"] = "sqlite"
 
 from .settings import *  # noqa: E402,F403
 
+# Private .env credentials and live channel switches must never enter tests.
+# Adapter tests provide explicit disposable settings through override_settings.
+WECHAT_APP_ID = ""
+WECHAT_APP_SECRET = ""
+STUDENT_SESSION_ENCRYPTION_KEYS = ()
+VIRTUAL_PAYMENT_ENABLED = False
+VIRTUAL_PAYMENT_IOS_ENABLED = False
+
 test_engine = os.environ.get("TEST_DB_ENGINE", "sqlite")
 if test_engine == "sqlite":
     DATABASES = {"default": {
