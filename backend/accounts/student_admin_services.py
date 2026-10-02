@@ -5,12 +5,16 @@ from django.utils import timezone
 from common.errors import BusinessError
 from common.idempotency import payload_digest
 from entitlements.services import _audit, lock_user, _require_admin
+from entitlements.models import AuditEvent
 from .models import StudentSession
 
 
 def student_status_fingerprint(user):
     return payload_digest({"id":user.pk,"active":user.is_active,"staff":user.is_staff,
-        "superuser":user.is_superuser,"identities":list(user.wechat_identities.order_by('id').values_list('id',flat=True))})
+        "superuser":user.is_superuser,"identities":list(user.wechat_identities.order_by('id').values_list('id',flat=True)),
+        # Immutable service-only audits form a monotonic status revision. This
+        # rejects an old preview even after disable/enable returns to its state.
+        "statusRevision":AuditEvent.objects.filter(user_id=user.pk,kind='student_status_changed').count()})
 
 
 @transaction.atomic

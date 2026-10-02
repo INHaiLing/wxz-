@@ -111,3 +111,13 @@ class StudentStatusAdminTests(TestCase):
         with self.assertRaises(BusinessError) as caught:
             set_student_status(self.user.pk, self.actor, enabled=False, reason='停用', expected_fingerprint=fingerprint)
         self.assertEqual(caught.exception.detail['error']['code'], 'FORBIDDEN')
+
+    def test_old_preview_stays_invalid_after_disable_enable_cycle(self):
+        old_disable = self.preview()
+        self.assertEqual(self.post(old_disable).status_code, 302)
+        old_enable = self.preview('enable')
+        self.assertEqual(self.post(old_enable, 'enable').status_code, 302)
+        self.assertEqual(self.post(old_disable).status_code, 409)
+        self.assertEqual(self.post(self.preview()).status_code, 302)
+        self.assertEqual(self.post(old_enable, 'enable').status_code, 409)
+        self.assertEqual(AuditEvent.objects.filter(kind='student_status_changed').count(), 3)
