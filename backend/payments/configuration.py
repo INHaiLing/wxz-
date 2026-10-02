@@ -12,6 +12,8 @@ def channel_configuration(channel):
     environment = getattr(settings, "VIRTUAL_PAYMENT_ENV", 0)
     if type(environment) is not int or environment not in (0,1):
         raise BusinessError("PAYMENT_CONFIGURATION_ERROR", "支付配置不可用。", 503)
+    if channel == "ios" and environment != 0:
+        raise BusinessError("PAYMENT_CHANNEL_UNAVAILABLE", "Apple 支付仅支持正式环境。", 503)
     app_key = getattr(settings, "VIRTUAL_PAYMENT_APP_KEY" if environment==0 else "VIRTUAL_PAYMENT_SANDBOX_APP_KEY", "")
     offer_id = getattr(settings, "VIRTUAL_PAYMENT_OFFER_ID", "")
     if not all(isinstance(v,str) and v for v in (app_key,offer_id,getattr(settings,"WECHAT_APP_ID",""),
@@ -26,17 +28,26 @@ def channel_configuration(channel):
     return {"environment":environment, "appKey":app_key,"offerId":offer_id,"appId":settings.WECHAT_APP_ID}
 
 
-def available_channels():
+def require_channel_price(channel, price_fen):
+    if channel == "ios" and price_fen < 100:
+        raise BusinessError("PAYMENT_CHANNEL_UNAVAILABLE", "Apple 支付金额至少为 1 元。", 503)
+
+
+def available_channels(product=None):
     channels={}
     for channel in ('android','ios'):
-        try: channel_configuration(channel)
+        try:
+            channel_configuration(channel)
+            if product is not None:
+                require_channel_price(channel, product.price_fen)
         except BusinessError: channels[channel]=False
         else: channels[channel]=True
     return channels
 
 
-def require_product_ready(product):
+def require_product_ready(product, channel=None):
     if not product.is_active:
         raise BusinessError("PRODUCT_DISABLED", "商品当前不可购买。", 409)
     if not product.platform_product_id or product.platform_sync_state!='synced' or product.platform_synced_price_fen!=product.price_fen:
         raise BusinessError("PLATFORM_SYNC_REQUIRED", "平台商品和价格尚未确认同步。", 409)
+    require_channel_price(channel, product.price_fen)

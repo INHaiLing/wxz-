@@ -68,6 +68,19 @@ jobs:
         run: python -m pip install -r backend/requirements.txt
       - name: Verify startup, regressions and independent-connection transactions
         run: python backend/scripts/verify.py --database postgresql
+      - name: Verify separated operational role initialization
+        env:
+          DJANGO_SETTINGS_MODULE: config.test_settings
+          TEST_DB_ENGINE: postgresql
+        run: |
+          python backend/manage.py setup_business_roles
+          python backend/manage.py setup_business_roles
+      - name: Verify real SQLite to isolated PostgreSQL 16 data transfer
+        run: python backend/scripts/verify_database_transfer.py
+      - name: Install Linux WSGI production lock
+        run: python -m pip install -r backend/requirements-production.txt
+      - name: Verify production profile and actual WSGI startup
+        run: python backend/scripts/verify_production.py
 
   frontend:
     name: Historical mini-program regression

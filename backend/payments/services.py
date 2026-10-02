@@ -5,7 +5,7 @@ from common import idempotency
 from common.errors import BusinessError
 from entitlements.models import Product
 from entitlements.services import check_new_opening, entitlement_snapshot, has_active_entitlement, lock_user, lock_reservation, reserve_opening
-from .configuration import channel_configuration, require_product_ready
+from .configuration import channel_configuration, require_channel_price, require_product_ready
 from .models import Order, PaymentTask
 from .signing import payment_packet
 
@@ -42,7 +42,7 @@ def create_order(user, session, product_id, channel, key):
     configuration=channel_configuration(channel); _session(session,locked,configuration)
     try: product=Product.objects.select_for_update().get(pk=product_id)
     except Product.DoesNotExist as error: raise BusinessError("NOT_FOUND","商品不存在。",404) from error
-    require_product_ready(product)
+    require_product_ready(product, channel=channel)
     order=Order(user=locked,identity=session.identity,product=product,product_name=product.name,
                 price_fen=product.price_fen,scope=product.scope,platform_product_id=product.platform_product_id,
                 app_id=configuration['appId'],environment=configuration['environment'],channel=channel)
@@ -67,13 +67,14 @@ def prepare_payment(user, session, order_id, key):
     if not previous and order.status!='created':
         raise BusinessError("PAYMENT_ALREADY_PREPARED","订单已进入平台处理，请查询原订单结果。",409,fields={"order":order_payload(order)})
     configuration=channel_configuration(order.channel); _session(session,locked,configuration)
+    require_channel_price(order.channel, order.price_fen)
     if order.identity_id!=session.identity_id:
         raise BusinessError("AUTH_REQUIRED","订单与当前微信身份不一致。",401)
     configuration_digest=idempotency.payload_digest(configuration)
     if order.app_id!=configuration['appId'] or order.environment!=configuration['environment'] or (previous and order.configuration_digest!=configuration_digest):
         raise BusinessError("PAYMENT_CONFIGURATION_CHANGED","支付环境已变化，请联系管理员核查原订单。",409)
     product=Product.objects.select_for_update().get(pk=order.product_id)
-    require_product_ready(product)
+    require_product_ready(product, channel=order.channel)
     if product.price_fen!=order.price_fen or product.platform_product_id!=order.platform_product_id:
         raise BusinessError("PRICE_CHANGED","商品已变更，请重新获取商品并创建订单。",409)
     if previous:

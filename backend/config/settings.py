@@ -6,7 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env", interpolate=False)
 
 
 def env_bool(name, default=False):
@@ -40,9 +40,14 @@ STUDENT_SESSION_ENCRYPTION_KEYS = tuple(
 WECHAT_LOGIN_TIMEOUT_SECONDS = 5
 WECHAT_LOGIN_RATE_LIMIT = 30
 VIRTUAL_PAYMENT_ENABLED = env_bool("VIRTUAL_PAYMENT_ENABLED", False)
-VIRTUAL_PAYMENT_ANDROID_ENABLED = env_bool("VIRTUAL_PAYMENT_ANDROID_ENABLED", True)
+VIRTUAL_PAYMENT_ANDROID_ENABLED = env_bool("VIRTUAL_PAYMENT_ANDROID_ENABLED", False)
 VIRTUAL_PAYMENT_IOS_ENABLED = env_bool("VIRTUAL_PAYMENT_IOS_ENABLED", False)
-VIRTUAL_PAYMENT_ENV = int(os.environ.get("VIRTUAL_PAYMENT_ENV", "0"))
+try:
+    VIRTUAL_PAYMENT_ENV = int(os.environ.get("VIRTUAL_PAYMENT_ENV", "0"))
+    if VIRTUAL_PAYMENT_ENV not in (0, 1):
+        raise ValueError()
+except ValueError:
+    raise ImproperlyConfigured("VIRTUAL_PAYMENT_ENV must be 0 or 1.") from None
 VIRTUAL_PAYMENT_OFFER_ID = os.environ.get("VIRTUAL_PAYMENT_OFFER_ID", "")
 VIRTUAL_PAYMENT_APP_KEY = os.environ.get("VIRTUAL_PAYMENT_APP_KEY", "")
 VIRTUAL_PAYMENT_SANDBOX_APP_KEY = os.environ.get("VIRTUAL_PAYMENT_SANDBOX_APP_KEY", "")
@@ -67,6 +72,8 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "content.apps.ContentConfig",
     "entitlements.apps.EntitlementsConfig",
+    "contracts.apps.ContractsConfig",
+    "operations.apps.OperationsConfig",
     "payments.apps.PaymentsConfig",
     "learning.apps.LearningConfig",
     "activation.apps.ActivationConfig",

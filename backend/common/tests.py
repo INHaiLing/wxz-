@@ -9,11 +9,13 @@ from .models import RateBucket
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from scripts.initialize_env import create_local_env
+import os
+from unittest.mock import patch
 
 
 class InfrastructureTests(TestCase):
     def test_setup_creates_random_keys_once_and_preserves_existing_credentials(self):
-        with TemporaryDirectory() as folder:
+        with TemporaryDirectory() as folder, patch.dict(os.environ, {}, clear=True):
             path = Path(folder)
             (path / ".env.example").write_text(
                 "DJANGO_SECRET_KEY=replace-with-generated-secret-at-least-32-characters\n"

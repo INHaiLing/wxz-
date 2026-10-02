@@ -12,6 +12,7 @@ from entitlements.services import (
 from . import gateway
 from .models import Order, PaymentEvent, PaymentTask
 from .protocol import invalid, number_field, text_field
+from .refund_queries import record_refund_query
 from .services import order_payload
 
 
@@ -151,11 +152,7 @@ def apply_callback(data, app_id):
         raise invalid()
     number_field(data, "CreateTime")
     if kind == "xpay_subscribe_ios_refund_query_notify":
-        event_id = idempotency.payload_digest(data)
-        event = PaymentEvent.objects.filter(pk=event_id).first()
-        if event is None:
-            PaymentEvent(key=event_id, kind=kind, request_digest=event_id, outcome="uncertain", details={"policy": "platform_uncertain"}).save(_service=True)
-        return "uncertain"
+        return record_refund_query(data, app_id)
     if kind not in ("xpay_goods_deliver_notify", "xpay_refund_notify"):
         raise invalid()
     reference = _reference(text_field(data, "OutTradeNo" if kind == "xpay_goods_deliver_notify" else "MchOrderId", maximum=32))

@@ -2,6 +2,7 @@
 
 import os
 import secrets
+from unittest.mock import patch
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -10,7 +11,10 @@ os.environ["DJANGO_SECRET_KEY"] = secrets.token_urlsafe(64)
 os.environ["DJANGO_DEBUG"] = "false"
 os.environ["DB_ENGINE"] = "sqlite"
 
-from .settings import *  # noqa: E402,F403
+# Do not even load private .env values into the test process environment.
+# CLI configuration tests use temporary files and explicitly supplied overrides.
+with patch("dotenv.load_dotenv", return_value=False):
+    from .settings import *  # noqa: E402,F403
 
 # Private .env credentials and live channel switches must never enter tests.
 # Adapter tests provide explicit disposable settings through override_settings.

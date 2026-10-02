@@ -1,0 +1,11 @@
+bind = "127.0.0.1:8000"
+workers = 2
+worker_class = "sync"
+timeout = 30
+graceful_timeout = 30
+max_requests = 1000
+max_requests_jitter = 100
+accesslog = None  # Application logger omits query/body/headers.
+errorlog = "-"
+capture_output = True
+forwarded_allow_ips = "127.0.0.1"

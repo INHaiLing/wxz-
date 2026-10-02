@@ -7,6 +7,7 @@ project.private.config.json
 backend/.venv/
 backend/.env
 backend/.local/
+backend/.config-*
 backend/staticfiles/
 backend/media/
 backend/*.sqlite3
