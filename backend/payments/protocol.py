@@ -96,7 +96,7 @@ def decrypt_message(encrypted, key, app_id):
         if not isinstance(encrypted, str) or len(encrypted) > MAX_BYTES:
             raise ValueError()
         ciphertext = base64.b64decode(encrypted, validate=True)
-        if not ciphertext or len(ciphertext) % 16:
+        if not ciphertext or len(ciphertext) % 32:
             raise ValueError()
         decryptor = Cipher(algorithms.AES(key), modes.CBC(key[:16])).decryptor()
         clear = decryptor.update(ciphertext) + decryptor.finalize()
@@ -125,7 +125,7 @@ def text_field(data, name, *, optional=False, maximum=128):
 
 def number_field(data, name, *, minimum=0):
     value = data.get(name)
-    if isinstance(value, str) and re.fullmatch(r"[0-9]{1,15}", value):
+    if isinstance(value, str) and re.fullmatch(r"-?[0-9]{1,15}", value):
         value = int(value)
     if type(value) is not int or value < minimum or value > 10**15:
         raise invalid()

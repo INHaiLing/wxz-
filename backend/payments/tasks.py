@@ -43,7 +43,7 @@ def claim_task():
 @transaction.atomic
 def finish_task(task_id, lease, *, error=""):
     task = PaymentTask.objects.select_for_update().get(pk=task_id)
-    if task.status != "running" or not task.lease_token or task.lease_token != lease:
+    if task.status != "running" or not task.lease_token or task.lease_token != lease or not task.lease_until or task.lease_until <= timezone.now():
         return False
     task.last_error_code = error[:64]
     if error:
@@ -59,7 +59,7 @@ def finish_task(task_id, lease, *, error=""):
 
 def run_task(task_id, lease):
     task = PaymentTask.objects.get(pk=task_id)
-    if task.status != "running" or task.lease_token != lease:
+    if task.status != "running" or task.lease_token != lease or not task.lease_until or task.lease_until <= timezone.now():
         return False
     order = Order.objects.select_related("identity").get(pk=task.order_id)
     error = ""

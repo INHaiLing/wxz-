@@ -22,7 +22,7 @@ class NoRedirect(HTTPRedirectHandler):
         return None
 
 
-@sensitive_variables("body", "raw", "url", "request")
+@sensitive_variables("body", "raw", "url", "request", "query", "result")
 def official_post(path, body, query=None, *, allow_empty=False):
     if path not in ("/cgi-bin/stable_token", "/xpay/query_order", "/xpay/notify_provide_goods"):
         raise ValueError("unsupported official endpoint")
@@ -37,6 +37,8 @@ def official_post(path, body, query=None, *, allow_empty=False):
             raise ValueError()
         if not raw and allow_empty:
             return {}
+        if not raw.lstrip().startswith(b"{"):
+            raise ValueError()
         result = parse_payload(raw)
         if "errcode" in result and (type(result["errcode"]) is not int or result["errcode"] != 0):
             raise ValueError()

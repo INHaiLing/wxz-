@@ -33,38 +33,52 @@ def _task(order, kind):
 def _review(order, code):
     if order.status not in ("refunded", "closed"):
         order.status = "review"
-        order.review_reason = code
-        order.save(_service=True)
+    order.review_reason = code
+    order.save(_service=True)
 
 
 def _ids(order, platform_id, transaction_id):
+    original = (order.platform_order_id, order.transaction_id)
+
+    def conflict():
+        order.platform_order_id, order.transaction_id = original
+        return False
+
     for field, value in (("platform_order_id", platform_id), ("transaction_id", transaction_id)):
         if not value:
             continue
         previous = getattr(order, field)
         if previous and previous != value:
-            return False
+            return conflict()
         if Order.objects.exclude(pk=order.pk).filter(**{field: value}).exists():
-            return False
+            return conflict()
         setattr(order, field, value)
     try:
         with transaction.atomic():
             order.save(_service=True)
     except IntegrityError:
-        return False
+        return conflict()
     return True
 
 
 def _paid(order, *, query=False):
-    if order.status in ("closed", "refunded"):
+    if order.status == "refunded":
         return "ignored", ""
+    if order.status == "closed":
+        _review(order, "LATE_PAID_AFTER_CLOSED")
+        return "review", "LATE_PAID_AFTER_CLOSED"
     if not order.prepared_at or not order.sign_data or not order.configuration_digest:
         _review(order, "UNPREPARED_PAYMENT_REVIEW")
         return "review", "UNPREPARED_PAYMENT_REVIEW"
+    if not order.user.is_active or order.user.is_staff or order.user.is_superuser:
+        _review(order, "PAID_ACCOUNT_REVIEW")
+        return "review", "PAID_ACCOUNT_REVIEW"
     source = EntitlementSource.objects.filter(source_type="payment", source_id=order.pk).first()
     if source is None and has_active_entitlement(order.user, order.scope):
+        first_review = order.review_reason != "PAID_ENTITLEMENT_CONFLICT"
         _review(order, "PAID_ENTITLEMENT_CONFLICT")
-        _audit("payment_review", user=order.user, order_id=order.pk, code="PAID_ENTITLEMENT_CONFLICT")
+        if first_review:
+            _audit("payment_review", user=order.user, order_id=order.pk, code="PAID_ENTITLEMENT_CONFLICT")
         return "review", "PAID_ENTITLEMENT_CONFLICT"
     source = grant_entitlement(order.user, "payment", order.pk, scope=order.scope)
     if source.status == "revoked":
@@ -99,7 +113,7 @@ def _refund(order, refund_id, amount):
     if reservation and reservation.is_active and reservation.order_id == order.pk:
         reservation.released_at = timezone.now()
         reservation.save(_service=True)
-        _audit("opening_refunded", user=order.user, order_id=order.pk)
+        _audit("opening_refunded", user=order.user, order_id=order.pk, refundId=refund_id)
     return "applied", ""
 
 
@@ -110,6 +124,14 @@ def _record(order, kind, external_id, payload, operation):
     if previous:
         if previous.order_id != order.pk or previous.request_digest != digest:
             raise invalid()
+        if previous.outcome == "review":
+            outcome, error = operation()
+            if outcome != "review":
+                previous.outcome = outcome
+                previous.error_code = error
+                previous.details = {**previous.details, "initialOutcome": "review"}
+                previous.save(_service=True)
+                _audit("payment_event_resolved", user=order.user, order_id=order.pk, eventId=key)
         return previous
     outcome, error = operation()
     event = PaymentEvent(key=key, order=order, kind=kind, external_id=external_id,
@@ -168,7 +190,11 @@ def apply_callback(data, app_id):
         if attach and attach != order.pk:
             raise invalid()
         amount = number_field(data, "RefundFee", minimum=1)
-        result = number_field(data, "RetCode")
+        result = number_field(data, "RetCode", minimum=-2147483648)
+        started = number_field(data, "RefundStartTimestamp")
+        ended = number_field(data, "RefundSuccTimestamp")
+        if result == 0 and (not ended or ended < started):
+            raise invalid()
         payload = {"orderId": order.pk, "refundId": refund_id, "refundFee": amount, "retCode": result, "platformOrderId": platform_id, "transactionId": transaction_id}
 
         def refunded():
@@ -195,6 +221,8 @@ def apply_query(order_id, snapshot):
     platform_id = text_field(snapshot, "wx_order_id", optional=status not in (2, 3, 4, 5, 8))
     transaction_id = text_field(snapshot, "wxpay_order_id", optional=True)
     if status in (2, 3, 4, 5, 8) and number_field(snapshot, "order_fee", minimum=1) != order.price_fen:
+        raise invalid()
+    if status in (2, 3, 4) and number_field(snapshot, "paid_fee", minimum=1) != order.price_fen:
         raise invalid()
     metadata = snapshot.get("biz_meta", "")
     if metadata and metadata not in (order.pk, order.sign_data):
@@ -232,6 +260,8 @@ def query_payment(user, order_id, key):
     with transaction.atomic():
         locked = lock_user(user)
         lock_reservation(locked)
+        if not locked.is_active or locked.is_staff or locked.is_superuser:
+            raise BusinessError("AUTH_REQUIRED", "学员账户不可用。", 401)
         order = Order.objects.select_for_update().filter(pk=order_id, user=locked).first()
         if order is None:
             raise BusinessError("NOT_FOUND", "订单不存在。", 404)
