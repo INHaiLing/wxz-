@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "content.apps.ContentConfig",
     "entitlements.apps.EntitlementsConfig",
+    "practice.apps.PracticeConfig",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
