@@ -1,5 +1,7 @@
-# Tested with Python 3.14.7 on Windows. Generated from requirements.in.
+# Python 3.14 complete application lock; Windows/Linux are verified in CI.
 asgiref==3.12.1
+cffi==2.1.1
+cryptography==50.0.2
 diff-match-patch==20241021
 Django==5.2.17
 django-import-export==4.4.1
@@ -7,6 +9,9 @@ django-unfold==0.108.0
 djangorestframework==3.18.1
 et_xmlfile==2.0.0
 openpyxl==3.1.5
+psycopg==3.3.6
+psycopg-binary==3.3.6
+pycparser==3.0
 python-dotenv==1.2.1
 sqlparse==0.6.0
 tablib==3.10.0
