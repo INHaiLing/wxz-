@@ -48,6 +48,7 @@ VIRTUAL_PAYMENT_APP_KEY = os.environ.get("VIRTUAL_PAYMENT_APP_KEY", "")
 VIRTUAL_PAYMENT_SANDBOX_APP_KEY = os.environ.get("VIRTUAL_PAYMENT_SANDBOX_APP_KEY", "")
 VIRTUAL_PAYMENT_CALLBACK_TOKEN = os.environ.get("VIRTUAL_PAYMENT_CALLBACK_TOKEN", "")
 VIRTUAL_PAYMENT_CALLBACK_AES_KEY = os.environ.get("VIRTUAL_PAYMENT_CALLBACK_AES_KEY", "")
+ACTIVATION_REDEEM_RATE_LIMIT = 10
 
 INSTALLED_APPS = [
     "unfold",
@@ -67,6 +68,8 @@ INSTALLED_APPS = [
     "content.apps.ContentConfig",
     "entitlements.apps.EntitlementsConfig",
     "payments.apps.PaymentsConfig",
+    "learning.apps.LearningConfig",
+    "activation.apps.ActivationConfig",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
