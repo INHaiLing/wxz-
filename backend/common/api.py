@@ -17,7 +17,7 @@ class StudentAPIView(APIView):
         return [StudentBearerAuthentication()]
 
     def initial(self, request, *args, **kwargs):
-        request.request_id = uuid.uuid4().hex
+        request.request_id = getattr(request, "request_id", None) or uuid.uuid4().hex
         return super().initial(request, *args, **kwargs)
 
     def get_exception_handler(self):
