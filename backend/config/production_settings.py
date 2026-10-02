@@ -28,6 +28,9 @@ SECURE_SSL_REDIRECT = True
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 SECURE_HSTS_PRELOAD = False
+# These optional domain-wide commitments require ownership/TLS review.
+# Keep all other deployment warnings fatal; never opt client subdomains in blindly.
+SILENCED_SYSTEM_CHECKS = ["security.W005", "security.W021"]
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 STATIC_ROOT = Path(os.environ.get("DJANGO_STATIC_ROOT", "/srv/chinese-study/static"))
