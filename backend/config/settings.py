@@ -31,6 +31,18 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 TRUSTED_PROXY_IPS = [ip.strip() for ip in os.environ.get("TRUSTED_PROXY_IPS", "").split(",") if ip.strip()]
 
+# Student and channel capabilities are explicitly disabled until configured.
+WECHAT_APP_ID = os.environ.get("WECHAT_APP_ID", "")
+WECHAT_APP_SECRET = os.environ.get("WECHAT_APP_SECRET", "")
+STUDENT_SESSION_ENCRYPTION_KEYS = tuple(
+    key.strip() for key in os.environ.get("STUDENT_SESSION_ENCRYPTION_KEYS", "").split(",") if key.strip()
+)
+WECHAT_LOGIN_TIMEOUT_SECONDS = 5
+WECHAT_LOGIN_RATE_LIMIT = 30
+VIRTUAL_PAYMENT_ENABLED = env_bool("VIRTUAL_PAYMENT_ENABLED", False)
+VIRTUAL_PAYMENT_ANDROID_ENABLED = env_bool("VIRTUAL_PAYMENT_ANDROID_ENABLED", True)
+VIRTUAL_PAYMENT_IOS_ENABLED = env_bool("VIRTUAL_PAYMENT_IOS_ENABLED", False)
+
 INSTALLED_APPS = [
     "unfold",
     "unfold.contrib.filters",
@@ -47,6 +59,7 @@ INSTALLED_APPS = [
     "common.apps.CommonConfig",
     "accounts.apps.AccountsConfig",
     "content.apps.ContentConfig",
+    "entitlements.apps.EntitlementsConfig",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

@@ -10,7 +10,7 @@ $backendPython = Join-Path $PSScriptRoot '.venv/Scripts/python.exe'
 & $backendPython -m pip install -r requirements.txt
 if ($LASTEXITCODE -ne 0) { throw 'Failed to install backend dependencies.' }
 if (-not (Test-Path -LiteralPath '.env')) {
-    & $backendPython -c "from pathlib import Path; import secrets; text=Path('.env.example').read_text(encoding='utf-8'); Path('.env').write_text(text.replace('replace-with-generated-secret-at-least-32-characters',secrets.token_urlsafe(64)),encoding='utf-8')"
+    & $backendPython scripts/initialize_env.py
     if ($LASTEXITCODE -ne 0) { throw 'Failed to create local configuration.' }
 }
 & $backendPython manage.py migrate --noinput
@@ -19,6 +19,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Database migration failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Demo initialization failed.' }
 & $backendPython manage.py setup_roles
 if ($LASTEXITCODE -ne 0) { throw 'Role initialization failed.' }
+& $backendPython manage.py seed_product
+if ($LASTEXITCODE -ne 0) { throw 'Product initialization failed.' }
 if (-not $SkipAdmin) {
     & $backendPython manage.py shell -c "from accounts.models import User; import sys; sys.exit(0 if User.objects.filter(is_superuser=True,is_active=True).exists() else 1)" --verbosity 0
     if ($LASTEXITCODE -eq 1) {

@@ -5,6 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from django.contrib import admin
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
@@ -184,7 +185,16 @@ class QuestionImportTests(TestCase):
         preview = self.preview(make_dataset(literature_row(答案1="预览中的答案"), literature_row("other")))
         question.answers = ["后来编辑的答案"]
         question.save()
-        response = self.confirm(preview)
+        original_context = admin.site.each_context
+
+        def querying_context(request):
+            # New singleton admin modules query while building navigation.
+            # A failed import must finish rollback before rendering it.
+            Question.objects.count()
+            return original_context(request)
+
+        with patch.object(admin.site, "each_context", side_effect=querying_context):
+            response = self.confirm(preview)
         self.assertContains(response, "冲突 ID")
         question.refresh_from_db()
         self.assertEqual(question.answers, ["后来编辑的答案"])
