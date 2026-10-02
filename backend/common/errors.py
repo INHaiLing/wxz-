@@ -12,6 +12,10 @@ class BusinessError(APIException):
         if fields is not None:
             detail["error"]["fields"] = fields
         super().__init__(detail=detail, code=code)
+        if fields is not None:
+            # DRF's ErrorDetail recursively converts integers and booleans to
+            # strings. Version-conflict snapshots must retain JSON value types.
+            self.detail["error"]["fields"] = fields
 
 
 def student_exception_handler(exc, context):

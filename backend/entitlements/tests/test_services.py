@@ -2,15 +2,16 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.test import TestCase
+from django.utils import timezone
 
 from common.errors import BusinessError
 from entitlements.models import AuditEvent, EntitlementSource, OpeningReservation, Product
 from entitlements.services import (
     SCOPE, check_new_opening, entitlement_snapshot, grant_entitlement,
     has_active_entitlement, lock_user, mark_product_synced, release_opening,
-    reserve_opening, revoke_entitlement, revocation_preview,
+    reserve_opening, revoke_entitlement, revocation_preview, revoke_payment_entitlement,
 )
 
 
@@ -127,3 +128,59 @@ class EntitlementServiceTests(TestCase):
             with self.subTest(operation=operation):
                 with self.assertRaises(ValidationError):
                     operation()
+
+    def test_old_order_release_does_not_release_new_order_and_wrong_payment_keeps_reservation(self):
+        reserve_opening(self.user, "old-order")
+        release_opening(self.user, "old-order", verified_final_unpaid=True)
+        reserve_opening(self.user, "new-order")
+        self.assert_business_error("RESERVATION_CONFLICT", lambda: release_opening(self.user, "old-order", verified_final_unpaid=True))
+        grant_entitlement(self.user, "payment", "unrelated-order")
+        reservation = OpeningReservation.objects.get(user=self.user)
+        self.assertEqual(reservation.order_id, "new-order")
+        self.assertIsNone(reservation.released_at)
+
+    def test_disabled_user_has_no_access_and_new_opening_is_refused(self):
+        grant_entitlement(self.user, "activation", "inactive-code")
+        self.user.is_active = False
+        self.user.save()
+        self.assertFalse(has_active_entitlement(self.user))
+        self.assert_business_error("AUTH_REQUIRED", lambda: check_new_opening(self.user))
+        self.assert_business_error("AUTH_REQUIRED", lambda: reserve_opening(self.user, "inactive-order"))
+
+    def test_source_and_audit_roll_back_when_audit_cannot_be_written(self):
+        from unittest.mock import patch
+        with patch("entitlements.services._audit", side_effect=RuntimeError("audit unavailable")):
+            with self.assertRaises(RuntimeError):
+                grant_entitlement(self.user, "activation", "audit-failed")
+        self.assertEqual(EntitlementSource.objects.count(), 0)
+        self.assertEqual(AuditEvent.objects.count(), 0)
+
+    def test_lock_user_requires_an_existing_atomic_transaction(self):
+        # TestCase already has an outer transaction; inspect outside via a mock.
+        from unittest.mock import patch
+        with patch("entitlements.services.connection.in_atomic_block", False):
+            with self.assertRaises(RuntimeError):
+                lock_user(self.user)
+
+    def test_database_rejects_nonpermanent_source_and_admin_grant_requires_permission(self):
+        self.assert_business_error("FORBIDDEN", lambda: grant_entitlement(self.user, "payment", "unverified-admin", actor=self.user))
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                source = EntitlementSource(user=self.user, source_type="activation", source_id="bad-expiry", expires_at=timezone.now())
+                source.save(_service=True)
+        self.assertEqual(EntitlementSource.objects.count(), 0)
+        self.assertEqual(AuditEvent.objects.count(), 0)
+
+    def test_refund_internal_service_is_payment_only_idempotent_and_preserves_other_source(self):
+        activation = grant_entitlement(self.user, "activation", "refund-other-source")
+        payment = grant_entitlement(self.user, "payment", "refund-order")
+        self.assert_business_error("SOURCE_CONFLICT", lambda: revoke_payment_entitlement(activation.pk, "refund-id"))
+        revoke_payment_entitlement(payment.pk, "refund-id")
+        revoke_payment_entitlement(payment.pk, "refund-id")
+        payment.refresh_from_db()
+        self.assertEqual(payment.status, "revoked")
+        self.assertIsNone(payment.revoked_by_id)
+        self.assertTrue(has_active_entitlement(self.user))
+        event = AuditEvent.objects.get(kind="payment_refunded")
+        self.assertEqual(event.details["refundId"], "refund-id")
+        self.assertEqual(grant_entitlement(self.user, "payment", "refund-order").status, "revoked")
