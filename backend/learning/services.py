@@ -45,6 +45,19 @@ def _active_user(user):
     return locked
 
 
+def read_question_state(user, question_id):
+    from content.access import can_access_question
+    state = QuestionState.objects.filter(user=user, question_id=question_id).first()
+    if state:
+        return state_snapshot(state, question_id)
+    question = Question.objects.only("id").filter(pk=question_id).first()
+    if question is None:
+        raise BusinessError("NOT_FOUND", "题目不存在。", 404)
+    if not can_access_question(user, question):
+        raise BusinessError("ENTITLEMENT_REQUIRED", "该题当前不可访问。", 403)
+    return state_snapshot(None, question_id)
+
+
 @transaction.atomic
 def update_question_state(user, question_id, payload, key):
     from content.access import can_access_question
@@ -53,7 +66,7 @@ def update_question_state(user, question_id, payload, key):
     replay = lookup(user, "learning-question-state", key, request_payload)
     if replay:
         return replay.response
-    question = Question.objects.filter(pk=question_id).first()
+    question = Question.objects.only("id").filter(pk=question_id).first()
     if question is None:
         raise BusinessError("NOT_FOUND", "题目不存在。", 404)
     state = QuestionState.objects.select_for_update().filter(user=user, question=question).first()

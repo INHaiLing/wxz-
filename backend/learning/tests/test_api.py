@@ -43,6 +43,41 @@ class LearningAPITests(TestCase):
         self.assertTrue(second.data["favorite"])
         self.assertTrue(second.data["mastered"])
 
+    def test_state_get_defaults_are_nonmutating_and_new_device_reads_current_state(self):
+        url = f"/api/student/v1/me/questions/{self.first.pk}/state/"
+        first = self.client.get(url)
+        self.assertEqual(first.data, {"questionId": "first", "favorite": False, "mastered": False, "version": 0})
+        self.assertFalse(QuestionState.objects.exists())
+        saved = self.state(self.first, {"mastered": True, "baseVersion": 0})
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + make_session(self.student))
+        self.assertEqual(self.client.get(url).data, saved.data)
+        self.assertEqual(self.client.get(url + "?userId=1").status_code, 400)
+        self.assertIn("no-store", first["Cache-Control"])
+
+    def test_state_get_returns_only_existing_own_record_after_revoke_or_down(self):
+        source = grant_entitlement(self.student, "activation", "get-state-source-001")
+        saved = self.state(self.paid, {"mastered": True, "baseVersion": 0})
+        revoke_entitlement(source.pk, self.operator, "状态读端撤权测试")
+        url = f"/api/student/v1/me/questions/{self.paid.pk}/state/"
+        own = self.client.get(url)
+        self.assertEqual(own.data, saved.data)
+        self.assertNotIn(self.paid.answers[0], str(own.data))
+        Question.objects.filter(pk=self.paid.pk).update(is_published=False)
+        self.assertEqual(self.client.get(url).data, saved.data)
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + make_session(self.other_student))
+        self.assertEqual(self.client.get(url).status_code, 403)
+        self.assertFalse(QuestionState.objects.filter(user=self.other_student).exists())
+
+    def test_state_get_unknown_restricted_and_draft_never_expose_content(self):
+        for question in (self.paid, self.draft):
+            response = self.client.get(f"/api/student/v1/me/questions/{question.pk}/state/")
+            self.assertEqual(response.status_code, 403)
+            self.assertNotIn(question.stem, str(response.data))
+            self.assertNotIn(question.answers[0], str(response.data))
+        self.assertEqual(self.client.get("/api/student/v1/me/questions/unknown/state/").status_code, 404)
+        self.client.credentials()
+        self.assertEqual(self.client.get(f"/api/student/v1/me/questions/{self.first.pk}/state/").status_code, 401)
+
     def test_historical_success_replay_does_not_reapply_after_later_cancel(self):
         payload = {"favorite": True, "mastered": True, "baseVersion": 0}
         first = self.state(self.first, payload)

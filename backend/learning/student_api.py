@@ -10,7 +10,7 @@ from content.models import LearningConfiguration
 from content.serializers import PublishedQuestionSerializer, StrictPositiveIntegerField, validate_query_params
 from .models import QuestionState
 from .serializers import PreferenceInput, QuestionStateInput
-from .services import preference_snapshot, state_snapshot, statistics, update_preferences, update_question_state
+from .services import preference_snapshot, read_question_state, state_snapshot, statistics, update_preferences, update_question_state
 
 
 class NoQuery(serializers.Serializer):
@@ -32,6 +32,10 @@ class LearningAPIView(StudentAPIView):
 
 
 class QuestionStateView(LearningAPIView):
+    def get(self, request, pk):
+        validate_query_params(request.query_params, NoQuery)
+        return Response(read_question_state(request.user, pk))
+
     def put(self, request, pk):
         validate_query_params(request.query_params, NoQuery)
         serializer = QuestionStateInput(data=request.data)
