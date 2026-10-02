@@ -320,14 +320,18 @@ class QuestionImportMixin:
             request._question_confirm_versions = metadata["versions"]
             with transaction.atomic():
                 result = super().process_dataset(dataset, form, request, **kwargs)
-                if result.has_errors() or result.has_validation_errors():
+                failed = result.has_errors() or result.has_validation_errors()
+                if failed:
                     transaction.set_rollback(True)
-                    response = TemplateResponse(request, self.import_template_name, self._context(
-                        request, result=result, confirmation_error="本批未写入任何题目。请按错误提示修正后重新上传预检。",
-                    ))
                 else:
                     # Import-export creates Django LogEntry records within this same transaction.
                     response = self.process_result(result, request)
+            if failed:
+                # Admin navigation may query singleton configuration modules.
+                # Build it only after the failed batch's savepoint has rolled back.
+                response = TemplateResponse(request, self.import_template_name, self._context(
+                    request, result=result, confirmation_error="本批未写入任何题目。请按错误提示修正后重新上传预检。",
+                ))
             self._discard_preview(request, storage)
             return response
         except (ValidationError, signing.BadSignature, FileNotFoundError, ValueError, KeyError) as exc:
