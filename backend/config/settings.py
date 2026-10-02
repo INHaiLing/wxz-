@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "payments.apps.PaymentsConfig",
     "learning.apps.LearningConfig",
     "activation.apps.ActivationConfig",
+    "practice.apps.PracticeConfig",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
