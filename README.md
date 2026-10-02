@@ -12,7 +12,9 @@
 
 后端采用 Python 3.14、Django 5.2 LTS、DRF 和 Unfold；本机可用 SQLite，交易并发由 PostgreSQL 16 CI 验证。历史小程序有6个原生页面及本地演示数据；甲方前端通过独立学员 API 接入。真实微信登录、Android／iOS 支付及生产公网验收尚待甲方环境。
 
-当前开发版本 **v0.4.0**：P01～P12后端代码、Web后台、版本化接口、部署模板与运维文档已交付并交叉审核；整合315项PostgreSQL测试、Windows／Linux SQLite、历史前端、实际SQLite→PostgreSQL迁移演练及Gunicorn启动验证通过。交付内容与外部待办见[验收记录](doc/后端阶段验收与交付记录-v1.md)，模块PR见[任务表](doc/后端开发阶段与任务.md)，变更见[CHANGELOG](CHANGELOG.md)。阶段PR等待主分支审核，未创建新标签、未上线。
+当前开发版本 **v0.4.0**：P01～P12后端代码、Web后台、版本化接口、部署模板与运维文档已交付并交叉审核；最新支付上线校验基线的323项PostgreSQL测试通过，前一整合已完成Windows／Linux SQLite、历史前端、实际SQLite→PostgreSQL迁移演练及Gunicorn启动验证。交付内容与外部待办见[验收记录](doc/后端阶段验收与交付记录-v1.md)，模块PR见[任务表](doc/后端开发阶段与任务.md)，变更见[CHANGELOG](CHANGELOG.md)。阶段PR等待主分支审核，未创建新标签、未上线。
+
+用户已确认选定账号的备案、虚拟支付、Apple IAP和开发成员配置已完成，AppID／OfferID已确定。公开资料仅保留脱敏标识，实际编号和密钥存入本机私有配置。平台能力已开通不代表本机登录、商品同步、真机支付或公网已验收；本轮先按[本机准备说明](doc/本机微信与支付联调准备-v1.md)完成配置与诊断，支付新销售开关保持关闭。P13实施及验收状态见[模块规格](doc/modules/P13-本机配置与联调准备.md)。
 
 ## 题库管理后台
 
