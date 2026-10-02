@@ -4,7 +4,7 @@ from django.contrib import admin, messages
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.admin.utils import quote, unquote
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.db import transaction
+from django.db import connection, transaction
 from django.http import Http404
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
@@ -14,7 +14,7 @@ from unfold.admin import ModelAdmin
 
 from .forms import QuestionAdminForm
 from .importing import QuestionImportMixin
-from .models import Article, Category, Question, QuestionRevision
+from .models import Article, Category, LearningConfiguration, Question, QuestionRevision
 from .resources import QuestionResource
 from .services import (
     ContentConflict, make_publication_token, publish_questions,
@@ -232,6 +232,24 @@ class QuestionRevisionAdmin(ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(LearningConfiguration)
+class LearningConfigurationAdmin(ModelAdmin):
+    list_display = ("page_size", "daily_target", "exam_date")
+    fields = ("page_size", "daily_target", "exam_date")
+
+    def has_add_permission(self, request):
+        # Existing import failure pages can render while a transaction is
+        # marked for rollback. Fail closed instead of querying that transaction.
+        return (
+            super().has_add_permission(request)
+            and not connection.needs_rollback
+            and not LearningConfiguration.objects.exists()
+        )
 
     def has_delete_permission(self, request, obj=None):
         return False
