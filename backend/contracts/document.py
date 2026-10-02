@@ -324,13 +324,15 @@ def build_document():
         operation["responses"][str(status)]["headers"] = {"X-Request-ID": {"description": "服务端请求标识，用于定位联调问题。", "schema": STRING}}
         for code in (400, 401, 403, 404, 409, 429, 503):
             error_example = {"error": {"code": {400: "VALIDATION_ERROR", 401: "INVALID_TOKEN", 403: "ENTITLEMENT_REQUIRED",
-                        404: "NOT_FOUND", 409: "VERSION_CONFLICT", 429: "RATE_LIMITED", 503: "CHANNEL_UNAVAILABLE"}[code],
+                        404: "NOT_FOUND", 409: "VERSION_CONFLICT", 429: "RATE_LIMITED", 503: "PAYMENT_CHANNEL_UNAVAILABLE"}[code],
                         "message": "脱敏错误示例"}, "requestId": "test-only-request-id"}
             if code == 409 and route["name"] in ("student-question-state", "student-preferences"):
                 error_example["error"]["fields"] = {"current": example(ref(response_name), definitions)}
             if code == 409 and route["name"] in ("student-activation-redeem", "student-orders"):
                 error_example["error"].update(code="ALREADY_ACTIVATED", message="已激活")
-            operation["responses"][str(code)] = {"description": "认证／校验／业务错误；具体 code 见联调手册。",
+            if code == 503 and route["name"] == "student-wechat-login":
+                error_example["error"].update(code="WECHAT_UNAVAILABLE", message="微信登录暂时不可用。")
+            operation["responses"][str(code)] = {"description": "统一认证／校验／业务错误结构；各方法仅返回实际触发的错误，具体 code 见联调手册。",
                 "content": {"application/json": {"schema": ref("StudentError"), "example": error_example}}}
         if request_path:
             request = input_schema(request_path)
