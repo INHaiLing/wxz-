@@ -1,0 +1,19 @@
+[Unit]
+Description=Chinese study payment refund reconciliation scheduling
+After=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+User=chinese-study
+Group=chinese-study
+WorkingDirectory=/srv/chinese-study/current/backend
+EnvironmentFile=/etc/chinese-study/backend.env
+Environment=DJANGO_SETTINGS_MODULE=config.production_settings
+ExecStart=/srv/chinese-study/venv/bin/python manage.py schedule_payment_reconciliation --limit 1000 --older-than-hours 24
+TimeoutStartSec=600
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/chinese-study

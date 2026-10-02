@@ -1,5 +1,6 @@
 """Create missing operational roles without expanding existing grants."""
 
+from django.apps import apps
 from django.contrib.auth.models import Group, Permission
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
@@ -23,7 +24,7 @@ VIEW_PERMISSIONS = frozenset().union(
     *(permissions("practice", model, "view_" + model) for model in
       ("practiceround", "rounditem", "resumeposition")),
     *(permissions("payments", model, "view_" + model) for model in
-      ("order", "paymenttask")),
+      ("order", "paymenttask", "paymentevent")),
 )
 
 ROLES = {
@@ -36,9 +37,9 @@ ROLES = {
                     | permissions("activation", "activationredemption", "view_activationredemption"),
     "权益撤销": permissions("entitlements", "entitlementsource", "view_entitlementsource", "revoke_entitlementsource")
                     | permissions("entitlements", "auditevent", "view_auditevent"),
-    # P10 task rescheduling is added only once its real permission exists.
     "支付核查": permissions("payments", "order", "view_order")
-                    | permissions("payments", "paymenttask", "view_paymenttask")
+                    | permissions("payments", "paymenttask", "view_paymenttask", "reschedule_paymenttask")
+                    | permissions("payments", "paymentevent", "view_paymentevent")
                     | permissions("entitlements", "openingreservation", "view_openingreservation"),
 }
 
@@ -49,6 +50,16 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         expected = frozenset().union(*ROLES.values())
+        declared = set()
+        for app, model_name, code in expected:
+            try:
+                model = apps.get_model(app, model_name)
+            except LookupError:
+                continue
+            codes = {f"{action}_{model._meta.model_name}" for action in model._meta.default_permissions}
+            codes.update(name for name, _ in model._meta.permissions)
+            if code in codes:
+                declared.add((app, model_name, code))
         actual = {
             (permission.content_type.app_label, permission.content_type.model, permission.codename): permission
             for permission in Permission.objects.select_related("content_type").filter(
@@ -56,7 +67,7 @@ class Command(BaseCommand):
                 codename__in={item[2] for item in expected},
             )
         }
-        missing = expected - actual.keys()
+        missing = (expected - declared) | (expected - actual.keys())
         if missing:
             names = ", ".join(".".join(item) for item in sorted(missing))
             raise CommandError(f"缺少实际业务权限，请先同步模块并 migrate：{names}")

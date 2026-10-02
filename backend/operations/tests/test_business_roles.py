@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
@@ -51,6 +52,15 @@ class BusinessRoleTests(TestCase):
                 self.initialize()
         self.assertFalse(Group.objects.filter(name="错误模型").exists())
 
+    def test_stale_permission_row_for_uninstalled_model_is_rejected(self):
+        type_ = ContentType.objects.create(app_label="retired_module", model="legacy_model")
+        Permission.objects.create(content_type=type_, codename="view_legacy_model", name="历史权限")
+        stale = {"历史模块": frozenset({("retired_module", "legacy_model", "view_legacy_model")})}
+        with patch("operations.management.commands.setup_business_roles.ROLES", stale):
+            with self.assertRaisesMessage(CommandError, "retired_module.legacy_model.view_legacy_model"):
+                self.initialize()
+        self.assertFalse(Group.objects.filter(name="历史模块").exists())
+
     def test_effective_roles_cannot_gain_unrelated_high_impact_permissions(self):
         self.initialize()
         matrix = {
@@ -59,7 +69,7 @@ class BusinessRoleTests(TestCase):
             "商品运营": ("entitlements.sync_product", ("activation.generate_activationbatch", "entitlements.revoke_entitlementsource")),
             "激活码管理": ("activation.generate_activationbatch", ("entitlements.revoke_entitlementsource", "entitlements.change_product")),
             "权益撤销": ("entitlements.revoke_entitlementsource", ("activation.generate_activationbatch", "entitlements.change_product")),
-            "支付核查": ("payments.view_order", ("payments.change_order", "entitlements.grant_entitlementsource")),
+            "支付核查": ("payments.reschedule_paymenttask", ("payments.change_order", "entitlements.grant_entitlementsource")),
         }
         for index, (name, (allowed, forbidden)) in enumerate(matrix.items()):
             with self.subTest(role=name):
