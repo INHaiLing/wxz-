@@ -16,7 +16,7 @@ def product_payload(product):
     }
     # P09 checks signing, server lookup and incoming-message readiness together.
     from payments.configuration import available_channels
-    runtime_channels = available_channels()
+    runtime_channels = available_channels(product)
     channels = {channel: enabled and runtime_channels[channel] for channel,enabled in channels.items()}
     available = any(channels.values())
     if available:
