@@ -51,6 +51,7 @@ def generate_batch(actor, quantity, label, key):
     if not isinstance(label, str) or len(label) > 120:
         raise BusinessError("INVALID_LABEL", "用途说明最多 120 字。")
     actor = lock_user(actor)
+    _require_admin(actor, "activation.generate_activationbatch")
     payload = {"quantity": quantity, "label": label.strip()}
     previous = idempotency.lookup(actor, "activation.generate", key, payload)
     if previous:
@@ -84,11 +85,13 @@ def batch_fingerprint(batch):
 
 
 @transaction.atomic
-def transition_batch(batch_id, actor, action, expected_fingerprint=None):
+def transition_batch(batch_id, actor, action, expected_fingerprint=None, reason=""):
     if action not in TRANSITIONS:
         raise BusinessError("INVALID_ACTION", "批次操作无效。")
     before_states, next_state, permission = TRANSITIONS[action]
     _require_admin(actor, "activation." + permission)
+    if action in ("disable", "void") and (not isinstance(reason, str) or not reason.strip() or len(reason.strip()) > 500):
+        raise BusinessError("REASON_REQUIRED", "请填写 1～500 字禁用或作废理由。")
     batch = _get_batch(batch_id, lock=True)
     if expected_fingerprint is not None and batch_fingerprint(batch) != expected_fingerprint:
         raise BusinessError("VERSION_CONFLICT", "批次状态或操作影响已变化，请重新确认。", 409)
@@ -107,7 +110,7 @@ def transition_batch(batch_id, actor, action, expected_fingerprint=None):
     batch.save(_service=True)
     # No User lock here: batch administration must not reverse the student's
     # User -> reservation -> batch -> code ordering.
-    _audit("activation_" + action, actor=actor, batchId=str(batch.pk), before=before, after=batch.state)
+    _audit("activation_" + action, actor=actor, batchId=str(batch.pk), before=before, after=batch.state, reason=reason.strip())
     return batch
 
 
