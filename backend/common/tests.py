@@ -6,9 +6,25 @@ from .errors import BusinessError, student_exception_handler
 from .idempotency import lookup, remember
 from .limits import check_rate, client_ip
 from .models import RateBucket
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from scripts.initialize_env import create_local_env
 
 
 class InfrastructureTests(TestCase):
+    def test_setup_creates_random_keys_once_and_preserves_existing_credentials(self):
+        with TemporaryDirectory() as folder:
+            path = Path(folder)
+            (path / ".env.example").write_text(
+                "DJANGO_SECRET_KEY=replace-with-generated-secret-at-least-32-characters\n"
+                "STUDENT_SESSION_ENCRYPTION_KEYS=\n", encoding="utf-8")
+            self.assertTrue(create_local_env(path))
+            original = (path / ".env").read_text(encoding="utf-8")
+            self.assertNotIn("replace-with", original)
+            self.assertNotIn("STUDENT_SESSION_ENCRYPTION_KEYS=\n", original)
+            self.assertFalse(create_local_env(path))
+            self.assertEqual((path / ".env").read_text(encoding="utf-8"), original)
+
     def test_replay_is_bound_to_actor_operation_and_payload(self):
         user = get_user_model().objects.create_user("test-infra")
         other = get_user_model().objects.create_user("test-infra-other")

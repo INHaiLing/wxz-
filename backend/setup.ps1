@@ -10,7 +10,7 @@ $backendPython = Join-Path $PSScriptRoot '.venv/Scripts/python.exe'
 & $backendPython -m pip install -r requirements.txt
 if ($LASTEXITCODE -ne 0) { throw 'Failed to install backend dependencies.' }
 if (-not (Test-Path -LiteralPath '.env')) {
-    & $backendPython -c "from pathlib import Path; import secrets; text=Path('.env.example').read_text(encoding='utf-8'); Path('.env').write_text(text.replace('replace-with-generated-secret-at-least-32-characters',secrets.token_urlsafe(64)),encoding='utf-8')"
+    & $backendPython scripts/initialize_env.py
     if ($LASTEXITCODE -ne 0) { throw 'Failed to create local configuration.' }
 }
 & $backendPython manage.py migrate --noinput
