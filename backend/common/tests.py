@@ -1,10 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from rest_framework.test import APIRequestFactory
 
 from .errors import BusinessError, student_exception_handler
 from .idempotency import lookup, remember
-from .limits import check_rate
+from .limits import check_rate, client_ip
 from .models import RateBucket
 
 
@@ -33,3 +33,12 @@ class InfrastructureTests(TestCase):
         self.assertEqual(result.status_code, 409)
         self.assertEqual(result.data["error"]["code"], "ALREADY_ACTIVATED")
         self.assertEqual(result.data["requestId"], "test-request-id")
+
+    def test_untrusted_forwarded_address_cannot_evade_rate_limit(self):
+        request = APIRequestFactory().get("/", REMOTE_ADDR="192.0.2.5", HTTP_X_REAL_IP="198.51.100.10")
+        self.assertEqual(client_ip(request), "192.0.2.5")
+        with override_settings(TRUSTED_PROXY_IPS=["192.0.2.5"]):
+            self.assertEqual(client_ip(request), "198.51.100.10")
+        request.META["HTTP_X_REAL_IP"] = "forged-value"
+        with override_settings(TRUSTED_PROXY_IPS=["192.0.2.5"]):
+            self.assertEqual(client_ip(request), "192.0.2.5")

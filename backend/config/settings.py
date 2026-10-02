@@ -29,6 +29,7 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip() for origin in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
     if origin.strip()
 ]
+TRUSTED_PROXY_IPS = [ip.strip() for ip in os.environ.get("TRUSTED_PROXY_IPS", "").split(",") if ip.strip()]
 
 INSTALLED_APPS = [
     "unfold",

@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import ipaddress
 import time
 from datetime import datetime, timezone
 
@@ -9,6 +10,17 @@ from django.db.models import F
 
 from .errors import BusinessError
 from .models import RateBucket
+
+
+def client_ip(request):
+    peer = request.META.get("REMOTE_ADDR", "unknown")
+    if peer in getattr(settings, "TRUSTED_PROXY_IPS", ()):
+        forwarded = request.META.get("HTTP_X_REAL_IP", "")
+        try:
+            return str(ipaddress.ip_address(forwarded))
+        except ValueError:
+            pass
+    return peer
 
 
 @transaction.atomic
