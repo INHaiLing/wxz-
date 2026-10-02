@@ -216,6 +216,9 @@ class PracticeAPITests(StudentContentFixture):
         self.assertFalse(ResumePosition.objects.exists())
 
     def test_random_resume_checks_owner_range_membership_and_original_group(self):
+        from learning.models import LearningPreference
+
+        preference = LearningPreference.objects.create(user=self.user, mode="writing", daily_target=37, version=2)
         grant_entitlement(self.user, "activation", "p08-random-resume")
         round_id = self.create_round().data["id"]
         wrong_group = self.save_resume(self.paid, roundId=round_id, groupIndex=1)
@@ -228,8 +231,32 @@ class PracticeAPITests(StudentContentFixture):
         self.assertEqual(valid.status_code, 200, valid.data)
         self.assertEqual(PracticeRound.objects.get(pk=round_id).mode, "writing")
         self.assertEqual(valid.data["current"]["resume"]["mode"], "reciting")
+        preference.refresh_from_db()
+        self.assertEqual((preference.mode, preference.daily_target, preference.version), ("writing", 37, 2))
         self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.token_for(self.other_user))
         self.assertEqual(self.save_resume(roundId=round_id, groupIndex=1).status_code, 404)
+
+    def test_durable_replay_failure_rolls_back_round_items_and_resume_updates(self):
+        from practice.serializers import ResumeRequest, RoundRequest
+        from practice.services import create_round, save_resume
+
+        request = RoundRequest(data=self.scope)
+        request.is_valid(raise_exception=True)
+        with patch("practice.services.remember", side_effect=RuntimeError("test durable failure")):
+            with self.assertRaises(RuntimeError):
+                create_round(self.user, request.validated_data, "p08-rollback-round")
+        self.assertFalse(PracticeRound.objects.exists())
+        self.assertFalse(RoundItem.objects.exists())
+        self.assertFalse(IdempotencyRecord.objects.exists())
+        self.assertEqual(self.save_resume().status_code, 200)
+        request = ResumeRequest(data={**self.scope, "questionId": self.second.pk, "baseVersion": 1})
+        request.is_valid(raise_exception=True)
+        with patch("practice.services.remember", side_effect=RuntimeError("test durable failure")):
+            with self.assertRaises(RuntimeError):
+                save_resume(self.user, request.validated_data, "p08-rollback-resume")
+        current = ResumePosition.objects.get(user=self.user)
+        self.assertEqual((current.question_id, current.version), (self.first.pk, 1))
+        self.assertEqual(IdempotencyRecord.objects.count(), 1)
 
     def test_sequence_resume_after_revocation_returns_safe_start_and_never_restores_grant(self):
         source = grant_entitlement(self.user, "activation", "p08-sequence-revoke")

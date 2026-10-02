@@ -22,7 +22,7 @@ MAX_ROUND_SIZE = 10000
 def _student_lock(user):
     user = lock_user(user)
     if not user.is_active or user.is_staff or user.is_superuser:
-        raise BusinessError("AUTHENTICATION_FAILED", "学员账户不可用。", 401)
+        raise BusinessError("INVALID_TOKEN", "学员账户不可用。", 401)
     return user
 
 
