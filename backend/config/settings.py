@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "content.apps.ContentConfig",
     "entitlements.apps.EntitlementsConfig",
     "operations.apps.OperationsConfig",
+    "contracts.apps.ContractsConfig",
     "payments.apps.PaymentsConfig",
     "learning.apps.LearningConfig",
     "activation.apps.ActivationConfig",
