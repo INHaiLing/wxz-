@@ -1,0 +1,2 @@
+{% extends "admin/change_list.html" %}
+{% block object-tools-items %}{{ block.super }}{% if can_generate %}<a href="{{ generate_url }}" class="bg-primary-600 text-white rounded-default px-4 py-2">生成并一次下载 CSV</a>{% endif %}{% endblock %}

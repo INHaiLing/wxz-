@@ -1,4 +1,6 @@
 # Replace example.invalid and certificate paths before enabling.
+# Upstream errors otherwise log the full URL. Monitor status/health externally.
+error_log /dev/null;
 server {
     listen 80 default_server;
     server_name _;

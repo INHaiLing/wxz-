@@ -42,6 +42,7 @@ WECHAT_LOGIN_RATE_LIMIT = 30
 VIRTUAL_PAYMENT_ENABLED = env_bool("VIRTUAL_PAYMENT_ENABLED", False)
 VIRTUAL_PAYMENT_ANDROID_ENABLED = env_bool("VIRTUAL_PAYMENT_ANDROID_ENABLED", True)
 VIRTUAL_PAYMENT_IOS_ENABLED = env_bool("VIRTUAL_PAYMENT_IOS_ENABLED", False)
+ACTIVATION_REDEEM_RATE_LIMIT = 10
 
 INSTALLED_APPS = [
     "unfold",
@@ -61,6 +62,9 @@ INSTALLED_APPS = [
     "content.apps.ContentConfig",
     "entitlements.apps.EntitlementsConfig",
     "operations.apps.OperationsConfig",
+    "learning.apps.LearningConfig",
+    "activation.apps.ActivationConfig",
+    "practice.apps.PracticeConfig",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
