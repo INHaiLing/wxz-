@@ -16,7 +16,10 @@ from .forms import QuestionAdminForm
 from .importing import QuestionImportMixin
 from .models import Article, Category, Question, QuestionRevision
 from .resources import QuestionResource
-from .services import publish_questions, require_publish_permission, unpublish_questions
+from .services import (
+    ContentConflict, make_publication_token, publish_questions,
+    require_publish_permission, save_question_draft, unpublish_questions,
+)
 
 
 class RetainedContentAdmin(ModelAdmin):
@@ -74,7 +77,7 @@ class QuestionAdmin(QuestionImportMixin, ImportExportModelAdmin, RetainedContent
     actions = ("publish_selected", "unpublish_selected")
     fieldsets = (
         ("题目身份与归属", {"fields": ("id", "source", "category", "article", "type", "tag", "sort_order")}),
-        ("草稿内容", {"fields": ("stem", "answers"), "description": "保存只更新草稿；发布后只读接口才能读取新内容。"}),
+        ("草稿内容", {"fields": ("stem", "answers", "draft_token"), "description": "保存只更新草稿；发布后只读接口才能读取新内容。编辑凭证 30 分钟有效。"}),
         ("发布信息", {"fields": ("publication_status", "published_version", "preview_link", "created_at", "updated_at")}),
     )
 
@@ -108,13 +111,37 @@ class QuestionAdmin(QuestionImportMixin, ImportExportModelAdmin, RetainedContent
             return False
         return True
 
+    def get_form(self, request, obj=None, **kwargs):
+        base_form = super().get_form(request, obj, **kwargs)
+
+        class RequestBoundQuestionForm(base_form):
+            def __init__(self, *args, **form_kwargs):
+                super().__init__(*args, request=request, **form_kwargs)
+
+        return RequestBoundQuestionForm
+
+    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        response = super().changeform_view(request, object_id, form_url, extra_context)
+        if getattr(request, "_draft_conflict", None) and isinstance(response, TemplateResponse):
+            response.status_code = 409
+        return response
+
+    def _changeform_view(self, request, object_id, form_url, extra_context):
+        try:
+            with transaction.atomic():
+                return super()._changeform_view(request, object_id, form_url, extra_context)
+        except ValidationError as error:
+            # A conflict can occur after form.is_valid(), when save acquires its
+            # row lock. The savepoint has rolled back before re-rendering the
+            # bound form, so neither partial changes nor a broken transaction
+            # are swallowed. Never turn a stale save into 500.
+            request._draft_conflict = "；".join(error.messages)
+            return super()._changeform_view(request, object_id, form_url, extra_context)
+
     def save_model(self, request, obj, form, change):
-        with transaction.atomic():
-            if change:
-                locked = Question.objects.select_for_update().get(pk=obj.pk)
-                # A concurrent publication must not be overwritten by a stale edit form.
-                obj.published_revision_id = locked.published_revision_id
-                obj.is_published = locked.is_published
+        if change:
+            save_question_draft(obj, request.user, form.cleaned_data.get("draft_token"))
+        else:
             super().save_model(request, obj, form, change)
 
     def get_urls(self):
@@ -149,20 +176,18 @@ class QuestionAdmin(QuestionImportMixin, ImportExportModelAdmin, RetainedContent
     def _publication_action(self, request, queryset, *, publish):
         require_publish_permission(request.user)
         action = "publish_selected" if publish else "unpublish_selected"
+        questions = list(queryset.order_by("pk"))
         if request.POST.get("confirm_publication") != action:
-            return TemplateResponse(request, "admin/content/question/confirm_publication.html", {
-                **self.admin_site.each_context(request),
-                "title": "确认发布题目" if publish else "确认下架题目",
-                "opts": self.model._meta,
-                "questions": list(queryset.order_by("pk")),
-                "action_name": action,
-                "checkbox_name": ACTION_CHECKBOX_NAME,
-                "publishing": publish,
-                "media": self.media,
-            })
+            return self._publication_response(request, questions, action, publish,
+                confirmation_token=make_publication_token(questions, request.user, action))
         service = publish_questions if publish else unpublish_questions
         try:
-            count = service(queryset, request.user)
+            if request.POST.get("select_across", "0") != "0":
+                raise ContentConflict("确认时不能扩展所选集合，请重新确认本批题目。")
+            count = service(queryset, request.user, confirmation_token=request.POST.get("confirmation_token", ""))
+        except ContentConflict as error:
+            return self._publication_response(request, questions, action, publish,
+                confirmation_error="；".join(error.messages), status=409)
         except ValidationError as error:
             details = error.message_dict if hasattr(error, "message_dict") else error.messages
             self.message_user(request, f"整批操作未生效：{details}", level=messages.ERROR)
@@ -170,6 +195,15 @@ class QuestionAdmin(QuestionImportMixin, ImportExportModelAdmin, RetainedContent
             description = "发布" if publish else "下架"
             self.message_user(request, f"已{description} {count} 道题；状态和内容未变化的题目已跳过。", level=messages.SUCCESS)
         return None
+
+    def _publication_response(self, request, questions, action, publish, *, status=200, **extra):
+        return TemplateResponse(request, "admin/content/question/confirm_publication.html", {
+            **self.admin_site.each_context(request),
+            "title": "确认发布题目" if publish else "确认下架题目",
+            "opts": self.model._meta, "questions": questions,
+            "action_name": action, "checkbox_name": ACTION_CHECKBOX_NAME,
+            "publishing": publish, "media": self.media, **extra,
+        }, status=status)
 
     @admin.action(description="发布所选题目（需确认）", permissions=("publish",))
     def publish_selected(self, request, queryset):
