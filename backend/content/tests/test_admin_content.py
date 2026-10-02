@@ -37,6 +37,8 @@ class ContentAdminTests(TestCase):
     def publish_post(self, confirmed=False):
         data = {"action": "publish_selected", "_selected_action": [self.question.pk]}
         if confirmed:
+            preview = self.client.post(self.list_url, data)
+            data["confirmation_token"] = preview.context["confirmation_token"]
             data["confirm_publication"] = "publish_selected"
         return self.client.post(self.list_url, data)
 
@@ -78,11 +80,13 @@ class ContentAdminTests(TestCase):
         self.question.refresh_from_db()
         revision_id = self.question.published_revision_id
         self.client.force_login(self.editor)
+        token = self.client.get(self.change_url).context["adminform"].form["draft_token"].value()
         response = self.client.post(self.change_url, {
             "id": "try-to-replace-id", "source": "literature", "category": self.category.pk,
             "article": "", "type": "fact", "tag": "修订", "sort_order": "0",
             "stem": "《诗经》又称{{0}}。", "answers": "诗三百",
             "is_published": "", "published_revision": "", "_save": "保存",
+            "draft_token": token,
         })
         self.assertEqual(response.status_code, 302)
         self.question.refresh_from_db()
