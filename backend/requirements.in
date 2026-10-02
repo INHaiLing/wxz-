@@ -4,3 +4,5 @@ djangorestframework==3.18.1
 django-unfold==0.108.0
 django-import-export[xlsx]==4.4.1
 python-dotenv==1.2.1
+psycopg[binary]==3.3.6
+cryptography==50.0.2

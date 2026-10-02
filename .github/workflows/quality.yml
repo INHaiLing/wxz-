@@ -1,0 +1,84 @@
+name: Quality
+
+on:
+  push:
+    branches: [main, 'codex/backend-**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sqlite:
+    name: SQLite / ${{ matrix.os }} / Python 3.14
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install complete application lock
+        run: python -m pip install -r backend/requirements.txt
+      - name: Verify isolated SQLite startup and regression tests
+        run: python backend/scripts/verify.py --database sqlite
+
+  postgresql:
+    name: PostgreSQL 16 / Python 3.14
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: chinese_study_ci
+          POSTGRES_USER: ci_runner
+          POSTGRES_PASSWORD: disposable-ci-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ci_runner -d chinese_study_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DB_NAME: chinese_study_ci
+      TEST_DB_USER: ci_runner
+      TEST_DB_PASSWORD: disposable-ci-password
+      TEST_DB_HOST: 127.0.0.1
+      TEST_DB_PORT: '5432'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install complete application lock
+        run: python -m pip install -r backend/requirements.txt
+      - name: Verify startup, regressions and independent-connection transactions
+        run: python backend/scripts/verify.py --database postgresql
+
+  frontend:
+    name: Historical mini-program regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run check
