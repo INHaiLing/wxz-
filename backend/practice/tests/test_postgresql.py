@@ -39,7 +39,7 @@ class PracticePostgreSQLTests(TransactionTestCase):
                 try:
                     result = operation(index)
                 except BusinessError as error:
-                    result = error.code
+                    result = str(error.detail["error"]["code"])
                 return pid, result
             finally:
                 connections.close_all()
