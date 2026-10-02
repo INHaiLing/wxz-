@@ -14,7 +14,7 @@ from unfold.admin import ModelAdmin
 
 from .forms import QuestionAdminForm
 from .importing import QuestionImportMixin
-from .models import Article, Category, Question, QuestionRevision
+from .models import Article, Category, LearningConfiguration, Question, QuestionRevision
 from .resources import QuestionResource
 from .services import (
     ContentConflict, make_publication_token, publish_questions,
@@ -232,6 +232,18 @@ class QuestionRevisionAdmin(ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(LearningConfiguration)
+class LearningConfigurationAdmin(ModelAdmin):
+    list_display = ("page_size", "daily_target", "exam_date")
+    fields = ("page_size", "daily_target", "exam_date")
+
+    def has_add_permission(self, request):
+        return super().has_add_permission(request) and not LearningConfiguration.objects.exists()
 
     def has_delete_permission(self, request, obj=None):
         return False
