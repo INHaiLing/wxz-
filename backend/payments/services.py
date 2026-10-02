@@ -62,24 +62,30 @@ def prepare_payment(user, session, order_id, key):
     previous=idempotency.lookup(locked,'payment-prepare',key,payload)
     if previous and (order.status!='preparing' or has_active_entitlement(locked)):
         return {"order":order_payload(order),"payment":None,"entitlement":entitlement_snapshot(locked)}
+    if not previous and has_active_entitlement(locked):
+        raise BusinessError("ALREADY_ACTIVATED","已激活",409)
     if not previous and order.status!='created':
         raise BusinessError("PAYMENT_ALREADY_PREPARED","订单已进入平台处理，请查询原订单结果。",409,fields={"order":order_payload(order)})
     configuration=channel_configuration(order.channel); _session(session,locked,configuration)
-    if order.app_id!=configuration['appId'] or order.environment!=configuration['environment']:
+    if order.identity_id!=session.identity_id:
+        raise BusinessError("AUTH_REQUIRED","订单与当前微信身份不一致。",401)
+    configuration_digest=idempotency.payload_digest(configuration)
+    if order.app_id!=configuration['appId'] or order.environment!=configuration['environment'] or (previous and order.configuration_digest!=configuration_digest):
         raise BusinessError("PAYMENT_CONFIGURATION_CHANGED","支付环境已变化，请联系管理员核查原订单。",409)
-    if previous:
-        return {"order":order_payload(order),"payment":payment_packet(order,session,configuration),"entitlement":entitlement_snapshot(locked)}
-    check_new_opening(locked)
     product=Product.objects.select_for_update().get(pk=order.product_id)
     require_product_ready(product)
     if product.price_fen!=order.price_fen or product.platform_product_id!=order.platform_product_id:
         raise BusinessError("PRICE_CHANGED","商品已变更，请重新获取商品并创建订单。",409)
+    if previous:
+        return {"order":order_payload(order),"payment":payment_packet(order,session,configuration),"entitlement":entitlement_snapshot(locked)}
+    check_new_opening(locked)
     reserve_opening(locked,order.pk)
     order.sign_data=json.dumps({"offerId":configuration['offerId'],"buyQuantity":1,
         "env":order.environment,"currencyType":"CNY","productId":order.platform_product_id,
         "goodsPrice":order.price_fen,"outTradeNo":order.pk,"attach":order.pk},ensure_ascii=False,separators=(',',':'))
     packet=payment_packet(order,session,configuration) # decryption failure rolls back reservation
     order.status='preparing'; order.prepared_at=timezone.now(); order.prepared_session=session
+    order.configuration_digest=configuration_digest
     order.save(_service=True)
     task=PaymentTask(order=order,kind='query'); task.save(_service=True)
     idempotency.remember(locked,'payment-prepare',key,payload,{"orderId":order.pk})

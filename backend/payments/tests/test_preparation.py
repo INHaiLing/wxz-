@@ -118,6 +118,22 @@ class PaymentPreparationTests(TestCase):
             create_order(self.session.user,self.session,self.product.pk,'ios','order-key-123')
         self.assertEqual(str(error.exception.detail['error']['code']),'IDEMPOTENCY_CONFLICT')
 
+    def test_prepared_replay_rechecks_product_and_signing_configuration(self):
+        first=self.new_order(); prepare_payment(self.session.user,self.session,first,'payment-key-123')
+        with override_settings(VIRTUAL_PAYMENT_APP_KEY='changed-key'):
+            with self.assertRaises(BusinessError): prepare_payment(self.session.user,self.session,first,'payment-key-123')
+        self.product.is_active=False; self.product.save()
+        with self.assertRaises(BusinessError): prepare_payment(self.session.user,self.session,first,'payment-key-123')
+        self.assertTrue(OpeningReservation.objects.get(user=self.session.user).is_active)
+
+    def test_preparation_rejects_other_wechat_identity_even_same_internal_owner(self):
+        from accounts.models import WeChatIdentity
+        first=self.new_order()
+        second=WeChatIdentity.objects.create(user=self.session.user,app_id='wx-payment-test',openid='different-payer',encrypted_session_key=self.session.encrypted_session_key)
+        self.session.identity=second; self.session.save()
+        with self.assertRaises(BusinessError): prepare_payment(self.session.user,self.session,first,'payment-key-123')
+        self.assertFalse(OpeningReservation.objects.exists())
+
     def test_revoked_session_is_rechecked_inside_transaction(self):
         first=self.new_order(); revoke_session(self.session)
         with self.assertRaises(BusinessError): prepare_payment(self.session.user,self.session,first,'payment-key-123')

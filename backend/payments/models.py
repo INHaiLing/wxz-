@@ -28,6 +28,7 @@ class Order(ServiceOnlyModel):
     prepared_at = models.DateTimeField(null=True, blank=True)
     prepared_session = models.ForeignKey("accounts.StudentSession", on_delete=models.PROTECT, null=True, blank=True)
     sign_data = models.TextField(blank=True)
+    configuration_digest = models.CharField(max_length=64, blank=True)
     platform_order_id = models.CharField(max_length=128, blank=True)
     transaction_id = models.CharField(max_length=128, blank=True)
     last_platform_status = models.IntegerField(null=True, blank=True)
