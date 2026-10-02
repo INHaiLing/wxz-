@@ -59,6 +59,7 @@ class PaymentPreparationConcurrencyTests(TransactionTestCase):
 
     def test_actual_activation_competes_with_packet_preparation(self):
         self.actor.user_permissions.set(Permission.objects.filter(content_type__app_label__in=('activation','entitlements')))
+        self.actor=type(self.actor).objects.get(pk=self.actor.pk) # discard prior has_perm cache
         batch,codes=generate_batch(self.actor,1,'支付与兑换真实竞争','generate-race-key')
         transition_batch(batch.pk,self.actor,'receive'); transition_batch(batch.pk,self.actor,'enable')
         first=self.create('first-create-key')

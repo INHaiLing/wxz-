@@ -1,0 +1,13 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>{{ title }}</h1>
+{% if error_message %}<p role="alert">{{ error_message }}</p>{% endif %}
+<p>学员编号：{{ target_user.pk }}。当前：{% if target_user.is_active %}启用{% else %}停用{% endif %}。</p>
+{% if action == 'disable' %}<p>停用后将撤销 {{ active_session_count }} 个有效学员会话；学习和权益历史保留。</p>{% else %}<p>启用后学员需要重新微信登录，旧会话不会恢复。</p>{% endif %}
+<form method="post">{% csrf_token %}
+<input type="hidden" name="confirmation_token" value="{{ confirmation_token }}">
+<label>操作理由 <textarea name="reason" maxlength="500" required></textarea></label>
+<label><input type="checkbox" name="confirm" value="yes" required>已核对学员与操作影响</label>
+<button type="submit">确认{% if action == 'disable' %}停用{% else %}启用{% endif %}</button>
+</form>
+{% endblock %}

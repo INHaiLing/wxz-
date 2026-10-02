@@ -28,6 +28,15 @@ class WeChatIdentity(models.Model):
         return f"微信身份 #{self.pk} / 用户 #{self.user_id}"
 
 
+class StudentAccount(User):
+    class Meta:
+        proxy = True
+        verbose_name = "学员账号启停"
+        verbose_name_plural = verbose_name
+        default_permissions = ("view",)
+        permissions = (("set_student_status", "可以受控启停学员账户"),)
+
+
 class StudentSession(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="student_sessions")
     identity = models.ForeignKey(WeChatIdentity, on_delete=models.PROTECT, null=True, blank=True, related_name="sessions")
