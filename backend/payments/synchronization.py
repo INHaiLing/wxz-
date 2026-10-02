@@ -67,6 +67,9 @@ def _paid(order, *, query=False):
     if order.status == "closed":
         _review(order, "LATE_PAID_AFTER_CLOSED")
         return "review", "LATE_PAID_AFTER_CLOSED"
+    if order.review_reason == "REFUND_AMOUNT_REVIEW":
+        # A known partial refund cannot be erased by a delayed paid snapshot.
+        return "review", "REFUND_AMOUNT_REVIEW"
     if not order.prepared_at or not order.sign_data or not order.configuration_digest:
         _review(order, "UNPREPARED_PAYMENT_REVIEW")
         return "review", "UNPREPARED_PAYMENT_REVIEW"

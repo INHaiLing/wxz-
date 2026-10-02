@@ -57,6 +57,7 @@ class PaymentSynchronizationTests(SyncFixture):
         partial = apply_query(self.order.pk, snapshot(self.order, 5, left_fee=500))
         self.assertEqual(partial["order"]["status"], "review")
         self.assertTrue(partial["entitlement"]["active"])
+        self.assertEqual(apply_query(self.order.pk, snapshot(self.order, 3))["order"]["status"], "review")
         completed = apply_query(self.order.pk, snapshot(self.order, 8))
         self.assertEqual(completed["order"]["status"], "refunded")
         self.assertFalse(completed["entitlement"]["active"])
