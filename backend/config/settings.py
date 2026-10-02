@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "entitlements.apps.EntitlementsConfig",
     "learning.apps.LearningConfig",
     "activation.apps.ActivationConfig",
+    "practice.apps.PracticeConfig",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
