@@ -4,6 +4,7 @@ This is not a general JSON Schema implementation. Unsupported keys fail the
 contract check so no assertion is silently skipped when the vocabulary grows.
 """
 import json
+import math
 import re
 import uuid
 from datetime import date, datetime
@@ -18,7 +19,9 @@ SCHEMA_KEYS = {"$ref", "type", "anyOf", "enum", "const", "properties", "required
 
 
 def load_document():
-    return json.loads(DOCUMENT_PATH.read_text(encoding="utf-8"))
+    def reject_constant(value):
+        raise ValueError(f"契约不是严格JSON：{value}")
+    return json.loads(DOCUMENT_PATH.read_text(encoding="utf-8"), parse_constant=reject_constant)
 
 
 def resolve_ref(document, pointer):
@@ -76,6 +79,8 @@ def validate_value(value, schema, document, path="$", depth=0):
             for index, item in enumerate(value):
                 validate_value(item, schema["items"], document, f"{path}[{index}]", depth + 1)
     if isinstance(value, (int, float)) and not isinstance(value, bool):
+        if isinstance(value, float) and not math.isfinite(value):
+            raise ValueError(f"{path}: JSON数值必须有限")
         if value < schema.get("minimum", float("-inf")) or value > schema.get("maximum", float("inf")):
             raise ValueError(f"{path}: 数值超出范围")
     if isinstance(value, str):

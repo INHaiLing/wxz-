@@ -56,3 +56,6 @@ class ContractStructureTests(SimpleTestCase):
                 validate_value(value, state, document)
         with self.assertRaises(ValueError):
             validate_value("no-date", {"type": "string", "format": "date-time"}, document)
+        for invalid in (float("nan"), float("inf"), float("-inf")):
+            with self.assertRaises(ValueError):
+                validate_value(invalid, {"type": "number"}, document)

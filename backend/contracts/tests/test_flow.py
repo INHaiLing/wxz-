@@ -23,10 +23,16 @@ from contracts.validation import assert_response, load_document
 from learning.models import LearningActivity
 
 
-@override_settings(STUDENT_SESSION_ENCRYPTION_KEYS=(Fernet.generate_key().decode(),),
-                   WECHAT_APP_ID="wx-contract-test", WECHAT_APP_SECRET="test-only-contract-secret",
-                   WECHAT_LOGIN_RATE_LIMIT=1000, ACTIVATION_REDEEM_RATE_LIMIT=1000)
-class StudentEndToEndTests(TestCase):
+STUDENT_SETTINGS = {
+    "STUDENT_SESSION_ENCRYPTION_KEYS": (Fernet.generate_key().decode(),),
+    "WECHAT_APP_ID": "wx-contract-test",
+    "WECHAT_APP_SECRET": "test-only-contract-secret",
+    "WECHAT_LOGIN_RATE_LIMIT": 1000,
+    "ACTIVATION_REDEEM_RATE_LIMIT": 1000,
+}
+
+
+class StudentFlowFixture:
     def setUp(self):
         self.operator = get_user_model().objects.create_superuser("contract-operator", password="test-only-contract-password")
         self.article = Article.objects.create(id="quanxue", title="劝学")
@@ -112,6 +118,9 @@ class StudentEndToEndTests(TestCase):
         return [self.call("get", f"/api/student/v1/practice/rounds/{round_result['id']}/groups/{index}/").data
                 for index in range(1, round_result["groupCount"] + 1)]
 
+
+@override_settings(**STUDENT_SETTINGS)
+class StudentEndToEndTests(StudentFlowFixture, TestCase):
     def test_complete_import_trial_identity_redemption_learning_and_revocation(self):
         query = "/api/student/v1/questions/?source=classical&articleId=quanxue"
         for url in ("config/", "categories/", "articles/", "products/"):
