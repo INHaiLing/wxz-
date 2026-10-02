@@ -19,6 +19,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Database migration failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Demo initialization failed.' }
 & $backendPython manage.py setup_roles
 if ($LASTEXITCODE -ne 0) { throw 'Role initialization failed.' }
+& $backendPython manage.py seed_product
+if ($LASTEXITCODE -ne 0) { throw 'Product initialization failed.' }
 if (-not $SkipAdmin) {
     & $backendPython manage.py shell -c "from accounts.models import User; import sys; sys.exit(0 if User.objects.filter(is_superuser=True,is_active=True).exists() else 1)" --verbosity 0
     if ($LASTEXITCODE -eq 1) {
