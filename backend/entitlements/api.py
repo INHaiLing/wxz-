@@ -8,11 +8,11 @@ from .services import entitlement_snapshot
 
 def product_payload(product):
     synced = bool(product.platform_product_id and product.platform_sync_state == "synced" and product.platform_synced_price_fen == product.price_fen)
-    configured = bool(getattr(settings, "WECHAT_VIRTUAL_PAYMENT_ENABLED", False))
+    configured = bool(getattr(settings, "VIRTUAL_PAYMENT_ENABLED", False))
     base = product.is_active and synced and configured
     channels = {
-        "android": bool(base and getattr(settings, "WECHAT_VIRTUAL_PAYMENT_ANDROID_ENABLED", False)),
-        "ios": bool(base and getattr(settings, "WECHAT_VIRTUAL_PAYMENT_IOS_ENABLED", False)),
+        "android": bool(base and getattr(settings, "VIRTUAL_PAYMENT_ANDROID_ENABLED", False)),
+        "ios": bool(base and getattr(settings, "VIRTUAL_PAYMENT_IOS_ENABLED", False)),
     }
     available = any(channels.values())
     if available:
@@ -39,4 +39,4 @@ class ProductListView(PublicStudentAPIView):
 
 class MyEntitlementsView(StudentAPIView):
     def get(self, request):
-        return Response(entitlement_snapshot(request.user))
+        return Response(entitlement_snapshot(request.user), headers={"Cache-Control": "no-store, private"})

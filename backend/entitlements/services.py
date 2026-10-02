@@ -5,6 +5,7 @@ import json
 import re
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError, connection, transaction
 from django.utils import timezone
 
@@ -172,30 +173,56 @@ def revocation_preview(source):
     return {"fingerprint": fingerprint, "remainingSourceCount": len(others), "willRemainActive": bool(others)}
 
 
+def _lock_source_owner(source_id):
+    try:
+        reference = EntitlementSource.objects.get(pk=source_id)
+    except (EntitlementSource.DoesNotExist, ValueError, TypeError, ValidationError) as error:
+        raise BusinessError("NOT_FOUND", "权益来源不存在。", 404) from error
+    user = lock_user(reference.user_id)
+    lock_reservation(user, reference.scope)
+    return user, EntitlementSource.objects.select_for_update().get(pk=source_id)
+
+
+def _revoke_source(user, source, *, actor, reason, kind="revoked", **details):
+    if source.status == "revoked":
+        return source
+    preview = revocation_preview(source)
+    source.status = "revoked"
+    source.revoked_at = timezone.now()
+    source.revoked_by = actor
+    source.reason = reason
+    source.save(_service=True)
+    _audit(kind, user=user, actor=actor, source=source, reason=reason,
+           remainingSourceCount=preview["remainingSourceCount"],
+           willRemainActive=preview["willRemainActive"], **details)
+    return source
+
+
 @transaction.atomic
 def revoke_entitlement(source_id, actor, reason, expected_fingerprint=None):
     _require_admin(actor, "entitlements.revoke_entitlementsource")
     if not isinstance(reason, str) or not reason.strip() or len(reason.strip()) > 500:
         raise BusinessError("REASON_REQUIRED", "请填写 1～500 字撤销理由。")
-    try:
-        reference = EntitlementSource.objects.get(pk=source_id)
-    except (EntitlementSource.DoesNotExist, ValueError) as error:
-        raise BusinessError("NOT_FOUND", "权益来源不存在。", 404) from error
-    user = lock_user(reference.user_id)
-    lock_reservation(user, reference.scope)
-    source = EntitlementSource.objects.select_for_update().get(pk=source_id)
+    user, source = _lock_source_owner(source_id)
     preview = revocation_preview(source)
     if expected_fingerprint is not None and expected_fingerprint != preview["fingerprint"]:
         raise BusinessError("VERSION_CONFLICT", "权益状态或撤销影响已变化，请重新预览确认。", 409)
-    if source.status == "revoked":
-        return source
-    source.status = "revoked"
-    source.revoked_at = timezone.now()
-    source.revoked_by = actor
-    source.reason = reason.strip()
-    source.save(_service=True)
-    _audit("revoked", user=user, actor=actor, source=source, reason=source.reason, remainingSourceCount=preview["remainingSourceCount"], willRemainActive=preview["willRemainActive"])
-    return source
+    return _revoke_source(user, source, actor=actor, reason=reason.strip())
+
+
+@transaction.atomic
+def revoke_payment_entitlement(source_id, refund_id):
+    """Trusted internal primitive, only after P10 verifies a completed refund.
+
+    The order must first enter its irreversible refunded state; an absent source
+    is handled by the order workflow, never by granting then revoking here.
+    """
+    refund_id = _business_id(refund_id)
+    user, source = _lock_source_owner(source_id)
+    if source.source_type != "payment":
+        raise BusinessError("SOURCE_CONFLICT", "退款同步只能撤销付款来源。", 409)
+    return _revoke_source(user, source, actor=None, reason="平台退款：" + refund_id,
+                          kind="payment_refunded", refundId=refund_id)
 
 
 def product_fingerprint(product):
