@@ -44,11 +44,11 @@ actor.groups.add(Group.objects.get(name="业务查看"))
 LearningConfiguration.objects.create(page_size=3, daily_target=29, exam_date=date(2026, 12, 1))
 question = Question.objects.order_by("pk").first()
 query = Question.objects.filter(pk=question.pk)
-publish_questions(query, actor, confirmation_token=make_publication_token(query, actor, "publish"))
+publish_questions(query, actor, confirmation_token=make_publication_token(query.all(), actor, "publish_selected"))
 question.refresh_from_db()
 question.answers = [answer + "修订" for answer in question.answers]
 question.save()
-publish_questions(query, actor, confirmation_token=make_publication_token(query, actor, "publish"))
+publish_questions(query, actor, confirmation_token=make_publication_token(query.all(), actor, "publish_selected"))
 question.refresh_from_db()
 question.answers = [answer + "未发布草稿" for answer in question.answers]
 question.save()
