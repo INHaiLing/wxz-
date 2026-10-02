@@ -14,6 +14,10 @@ def product_payload(product):
         "android": bool(base and getattr(settings, "VIRTUAL_PAYMENT_ANDROID_ENABLED", False)),
         "ios": bool(base and getattr(settings, "VIRTUAL_PAYMENT_IOS_ENABLED", False)),
     }
+    # P09 checks signing, server lookup and incoming-message readiness together.
+    from payments.configuration import available_channels
+    runtime_channels = available_channels()
+    channels = {channel: enabled and runtime_channels[channel] for channel,enabled in channels.items()}
     available = any(channels.values())
     if available:
         reason = None

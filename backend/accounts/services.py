@@ -42,7 +42,7 @@ def issue_student_session(login):
     identity.save(update_fields=("encrypted_session_key", "updated_at"))
     raw_token = secrets.token_urlsafe(32)
     session = StudentSession.objects.create(
-        user=user, token_digest=token_digest(raw_token), encrypted_session_key=ciphertext,
+        user=user, identity=identity, token_digest=token_digest(raw_token), encrypted_session_key=ciphertext,
         expires_at=timezone.now() + timedelta(days=7),
     )
     return raw_token, session
