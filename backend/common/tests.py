@@ -50,6 +50,12 @@ class InfrastructureTests(TestCase):
         self.assertEqual(result.data["error"]["code"], "ALREADY_ACTIVATED")
         self.assertEqual(result.data["requestId"], "test-request-id")
 
+    def test_conflict_snapshot_preserves_boolean_and_integer_types(self):
+        error = BusinessError("VERSION_CONFLICT", "状态已更新", 409, fields={"current": {"favorite": False, "version": 2}})
+        result = student_exception_handler(error, {})
+        self.assertIs(result.data["error"]["fields"]["current"]["favorite"], False)
+        self.assertIsInstance(result.data["error"]["fields"]["current"]["version"], int)
+
     def test_untrusted_forwarded_address_cannot_evade_rate_limit(self):
         request = APIRequestFactory().get("/", REMOTE_ADDR="192.0.2.5", HTTP_X_REAL_IP="198.51.100.10")
         self.assertEqual(client_ip(request), "192.0.2.5")
