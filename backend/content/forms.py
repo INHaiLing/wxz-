@@ -6,6 +6,7 @@ from django import forms
 from unfold.widgets import UnfoldAdminTextareaWidget
 
 from .models import Question
+from .services import ContentConflict, check_draft_token, make_draft_token
 
 
 class AnswerListField(forms.CharField):
@@ -35,11 +36,34 @@ class AnswerListField(forms.CharField):
 
 
 class QuestionAdminForm(forms.ModelForm):
+    draft_token = forms.CharField(required=False, widget=forms.HiddenInput)
     answers = AnswerListField(
         label="答案（按占位符顺序）",
         widget=UnfoldAdminTextareaWidget(attrs={"rows": 7}),
         help_text="每行一个答案：第 1 行对应 {{0}}，第 2 行对应 {{1}}。含换行的答案可以填写 JSON 数组。",
     )
+
+    def __init__(self, *args, request=None, **kwargs):
+        self.request = request
+        super().__init__(*args, **kwargs)
+        if request is not None and not self.is_bound and not self.instance._state.adding:
+            self.initial["draft_token"] = make_draft_token(self.instance, request.user)
+
+    def clean(self):
+        data = super().clean()
+        if self.request is not None:
+            forced = getattr(self.request, "_draft_conflict", None)
+            if forced:
+                raise forms.ValidationError(forced)
+            if not self.instance._state.adding:
+                try:
+                    current = Question.objects.get(pk=self.instance.pk)
+                    check_draft_token(data.get("draft_token"), current, self.request.user)
+                except (ContentConflict, Question.DoesNotExist) as error:
+                    message = "；".join(error.messages) if isinstance(error, ContentConflict) else "题目已不可用，请重新打开题目列表。"
+                    self.request._draft_conflict = message
+                    raise forms.ValidationError(message) from error
+        return data
 
     class Meta:
         model = Question

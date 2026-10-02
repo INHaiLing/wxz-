@@ -3,17 +3,19 @@
 <div class="border border-base-200 rounded-default p-6 max-w-4xl dark:border-base-700">
   <p class="mb-4 font-semibold">本次将{% if publishing %}发布{% else %}下架{% endif %} {{ questions|length }} 道题目。</p>
   <p class="mb-4">{% if publishing %}全部草稿通过校验后才会生效；内容未变化时不创建重复修订。发布仍只允许有权限的后台账户读取，不代表题库公开。{% else %}下架后只读接口不再返回这些题目，草稿与历史发布修订会保留。{% endif %}</p>
+  {% if confirmation_error %}<p class="mb-4 text-red-600" role="alert">整批操作未生效：{{ confirmation_error }}</p>{% endif %}
   <ul class="list-disc pl-5 mb-6">
     {% for question in questions %}<li class="mb-2">{{ question.id }} · {{ question.stem|truncatechars:90 }}</li>{% endfor %}
   </ul>
-  <form method="post">
+  {% if not confirmation_error %}<form method="post">
     {% csrf_token %}
     {% for question in questions %}<input type="hidden" name="{{ checkbox_name }}" value="{{ question.pk }}">{% endfor %}
     <input type="hidden" name="action" value="{{ action_name }}">
     <input type="hidden" name="confirm_publication" value="{{ action_name }}">
+    <input type="hidden" name="confirmation_token" value="{{ confirmation_token }}">
     <input type="hidden" name="select_across" value="0">
     <button type="submit" class="bg-primary-600 border border-transparent font-medium px-4 py-2 rounded-default text-white">确认{% if publishing %}发布{% else %}下架{% endif %}</button>
     <a href="{% url 'admin:content_question_changelist' %}" class="ml-4">取消并返回</a>
-  </form>
+  </form>{% else %}<a href="{% url 'admin:content_question_changelist' %}">返回列表重新确认</a>{% endif %}
 </div>
 {% endblock %}
