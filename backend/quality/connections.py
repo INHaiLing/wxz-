@@ -26,8 +26,13 @@ def on_independent_connection(operation):
         # psycopg cancellation is safe from another thread. SQL itself is also
         # bounded by the PostgreSQL test settings; don't wait again on shutdown.
         db_connection = worker.get("connection")
-        if db_connection is not None:
-            db_connection.cancel_safe(timeout=2)
+        cancel = getattr(db_connection, "cancel_safe", None)
+        if not future.done() and callable(cancel):
+            try:
+                cancel(timeout=2)
+            except Exception:
+                # Cancellation is cleanup, and must not hide the test timeout.
+                pass
         raise
     finally:
         executor.shutdown(wait=False, cancel_futures=True)
