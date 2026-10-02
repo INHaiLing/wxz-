@@ -19,6 +19,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Database migration failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Demo initialization failed.' }
 & $backendPython manage.py setup_roles
 if ($LASTEXITCODE -ne 0) { throw 'Role initialization failed.' }
+& $backendPython manage.py setup_business_roles
+if ($LASTEXITCODE -ne 0) { throw 'Business role initialization failed.' }
 & $backendPython manage.py seed_product
 if ($LASTEXITCODE -ne 0) { throw 'Product initialization failed.' }
 if (-not $SkipAdmin) {

@@ -1,0 +1,3 @@
+# Linux WSGI profile; application dependencies remain the same complete lock.
+-r requirements.txt
+gunicorn==26.2.0

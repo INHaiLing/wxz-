@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule Chinese study refund reconciliation hourly
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+RandomizedDelaySec=60
+Unit=chinese-study-reconciliation.service
+
+[Install]
+WantedBy=timers.target

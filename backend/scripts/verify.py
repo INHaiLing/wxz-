@@ -33,6 +33,8 @@ def main():
             ("seed_demo",),
             ("setup_roles",),
             ("setup_roles",),
+            ("setup_business_roles",),
+            ("setup_business_roles",),
             ("seed_product",),
             ("seed_product",),
             ("test", "--noinput", "--verbosity", "2"),
