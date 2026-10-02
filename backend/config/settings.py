@@ -42,6 +42,12 @@ WECHAT_LOGIN_RATE_LIMIT = 30
 VIRTUAL_PAYMENT_ENABLED = env_bool("VIRTUAL_PAYMENT_ENABLED", False)
 VIRTUAL_PAYMENT_ANDROID_ENABLED = env_bool("VIRTUAL_PAYMENT_ANDROID_ENABLED", True)
 VIRTUAL_PAYMENT_IOS_ENABLED = env_bool("VIRTUAL_PAYMENT_IOS_ENABLED", False)
+VIRTUAL_PAYMENT_ENV = int(os.environ.get("VIRTUAL_PAYMENT_ENV", "0"))
+VIRTUAL_PAYMENT_OFFER_ID = os.environ.get("VIRTUAL_PAYMENT_OFFER_ID", "")
+VIRTUAL_PAYMENT_APP_KEY = os.environ.get("VIRTUAL_PAYMENT_APP_KEY", "")
+VIRTUAL_PAYMENT_SANDBOX_APP_KEY = os.environ.get("VIRTUAL_PAYMENT_SANDBOX_APP_KEY", "")
+VIRTUAL_PAYMENT_CALLBACK_TOKEN = os.environ.get("VIRTUAL_PAYMENT_CALLBACK_TOKEN", "")
+VIRTUAL_PAYMENT_CALLBACK_AES_KEY = os.environ.get("VIRTUAL_PAYMENT_CALLBACK_AES_KEY", "")
 ACTIVATION_REDEEM_RATE_LIMIT = 10
 
 INSTALLED_APPS = [
@@ -61,6 +67,7 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "content.apps.ContentConfig",
     "entitlements.apps.EntitlementsConfig",
+    "payments.apps.PaymentsConfig",
     "learning.apps.LearningConfig",
     "activation.apps.ActivationConfig",
     "practice.apps.PracticeConfig",

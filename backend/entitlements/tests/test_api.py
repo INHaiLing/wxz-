@@ -47,7 +47,10 @@ class EntitlementAPITests(TestCase):
         self.assertNotIn("secret", str(response.data).lower())
 
     def test_channel_flags_and_price_sync_gate(self):
-        with override_settings(VIRTUAL_PAYMENT_ENABLED=True, VIRTUAL_PAYMENT_IOS_ENABLED=True):
+        with override_settings(VIRTUAL_PAYMENT_ENABLED=True, VIRTUAL_PAYMENT_IOS_ENABLED=True,
+                WECHAT_APP_ID='wx-api-config',WECHAT_APP_SECRET='disposable-secret',
+                VIRTUAL_PAYMENT_APP_KEY='disposable-app-key',VIRTUAL_PAYMENT_OFFER_ID='123',
+                VIRTUAL_PAYMENT_CALLBACK_TOKEN='disposable-token',VIRTUAL_PAYMENT_CALLBACK_AES_KEY=base64.b64encode(b'x'*32).decode().rstrip('=')):
             product = self.client.get("/api/student/v1/products/").data["results"][0]
             self.assertTrue(product["purchaseAvailable"])
             self.assertEqual(product["paymentChannels"], {"android": True, "ios": True})
