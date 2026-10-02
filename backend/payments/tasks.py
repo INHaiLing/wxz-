@@ -14,6 +14,7 @@ from .synchronization import apply_query
 
 MAX_ATTEMPTS = 8
 LEASE_SECONDS = 60
+CLAIM_SCAN_LIMIT = 50
 
 
 @transaction.atomic
@@ -22,22 +23,24 @@ def claim_task():
     eligible = models.Q(status="pending", next_run_at__lte=now) | models.Q(status="running", lease_until__lte=now)
     queryset = PaymentTask.objects.filter(eligible).order_by("next_run_at", "pk")
     queryset = queryset.select_for_update(skip_locked=True) if connection.features.has_select_for_update_skip_locked else queryset.select_for_update()
-    task = queryset.first()
-    if task is None:
-        return None
-    if task.attempts >= MAX_ATTEMPTS:
-        task.status = "failed"
-        task.lease_token = ""
-        task.lease_until = None
-        task.last_error_code = "RETRIES_EXHAUSTED"
+    for _ in range(CLAIM_SCAN_LIMIT):
+        task = queryset.first()
+        if task is None:
+            return None
+        if task.attempts >= MAX_ATTEMPTS:
+            task.status = "failed"
+            task.lease_token = ""
+            task.lease_until = None
+            task.last_error_code = "RETRIES_EXHAUSTED"
+            task.save(_service=True)
+            continue
+        task.status = "running"
+        task.attempts += 1
+        task.lease_token = secrets.token_hex(32)
+        task.lease_until = now + timedelta(seconds=LEASE_SECONDS)
         task.save(_service=True)
-        return None
-    task.status = "running"
-    task.attempts += 1
-    task.lease_token = secrets.token_hex(32)
-    task.lease_until = now + timedelta(seconds=LEASE_SECONDS)
-    task.save(_service=True)
-    return task.pk, task.lease_token
+        return task.pk, task.lease_token
+    return None  # A fixed cap prevents unbounded row locks in one transaction.
 
 
 @transaction.atomic
