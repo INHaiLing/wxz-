@@ -36,7 +36,7 @@ class BusinessRoleTests(TestCase):
         self.initialize()
         self.assertEqual(list(group.permissions.all()), [custom])
         self.assertFalse(empty.permissions.exists())
-        self.assertEqual(Group.objects.filter(name__in=ROLES).count(), 6)
+        self.assertEqual(Group.objects.filter(name__in=ROLES).count(), len(ROLES))
 
     def test_missing_permission_fails_before_creating_any_group(self):
         broken = {**ROLES, "新业务": frozenset({("accounts", "studentaccount", "permission_does_not_exist")})}
@@ -70,6 +70,7 @@ class BusinessRoleTests(TestCase):
             "激活码管理": ("activation.generate_activationbatch", ("entitlements.revoke_entitlementsource", "entitlements.change_product")),
             "权益撤销": ("entitlements.revoke_entitlementsource", ("activation.generate_activationbatch", "entitlements.change_product")),
             "支付核查": ("payments.reschedule_paymenttask", ("payments.change_order", "entitlements.grant_entitlementsource")),
+            "资料群管理": ("resources.change_groupresourceconfiguration", ("resources.delete_groupresourceconfiguration",)),
         }
         for index, (name, (allowed, forbidden)) in enumerate(matrix.items()):
             with self.subTest(role=name):

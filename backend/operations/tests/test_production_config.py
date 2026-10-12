@@ -18,11 +18,18 @@ class ProductionConfigurationTests(SimpleTestCase):
             'VIRTUAL_PAYMENT_ENABLED':'false','WECHAT_APP_SECRET':'',
         })
         env.update(overrides)
-        return subprocess.run([sys.executable,'-c','import config.production_settings'],
+        return subprocess.run([sys.executable,'-c','import config.production_settings as settings; print(settings.MEDIA_ROOT)'],
                               cwd=Path(__file__).resolve().parents[2],env=env,capture_output=True,timeout=15)
 
     def test_valid_configuration_imports_without_external_connections(self):
-        self.assertEqual(self.config_process().returncode,0)
+        result = self.config_process()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.decode().strip().replace("\\", "/"), "/var/lib/chinese-study/media")
+
+    def test_media_root_uses_explicit_durable_directory(self):
+        result = self.config_process(DJANGO_MEDIA_ROOT="/srv/chinese-study/media")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.decode().strip().replace("\\", "/"), "/srv/chinese-study/media")
 
     def test_invalid_critical_settings_refuse_startup(self):
         cases=[{'DJANGO_DEBUG':'true'},{'DB_ENGINE':'sqlite'}, {'DJANGO_ALLOWED_HOSTS':'*'},

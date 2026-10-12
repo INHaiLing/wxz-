@@ -5018,6 +5018,175 @@
           }
         }
       }
+    },
+    "/api/student/v1/resources/group/": {
+      "get": {
+        "operationId": "student_group_resources_get",
+        "summary": "student-group-resources",
+        "tags": [
+          "resources"
+        ],
+        "security": [
+          {},
+          {
+            "studentBearer": []
+          }
+        ],
+        "parameters": [],
+        "x-backend-view": "resources.api.GroupResourceConfigurationView",
+        "x-request-serializer": null,
+        "x-query-serializer": "resources.api.EmptyQuery",
+        "x-query-policy": "strict",
+        "x-idempotency": false,
+        "responses": {
+          "200": {
+            "description": "成功；示例为脱敏结构示例。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResourceConfiguration"
+                },
+                "example": {
+                  "enabled": true,
+                  "groupQrCode": "https://example.invalid/media/resources/group/example.webp",
+                  "wechatId": "study-example",
+                  "claimCode": "EXAMPLE-CODE",
+                  "description": "资料领取说明",
+                  "announcement": "群公告示例",
+                  "updatedAt": "2026-10-12T00:00:00+08:00"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-ID": {
+                "description": "服务端请求标识，用于定位联调问题。",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "统一认证／校验／业务错误结构；各方法仅返回实际触发的错误，具体 code 见联调手册。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentError"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "脱敏错误示例"
+                  },
+                  "requestId": "test-only-request-id"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "统一认证／校验／业务错误结构；各方法仅返回实际触发的错误，具体 code 见联调手册。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentError"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_TOKEN",
+                    "message": "脱敏错误示例"
+                  },
+                  "requestId": "test-only-request-id"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "统一认证／校验／业务错误结构；各方法仅返回实际触发的错误，具体 code 见联调手册。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentError"
+                },
+                "example": {
+                  "error": {
+                    "code": "ENTITLEMENT_REQUIRED",
+                    "message": "脱敏错误示例"
+                  },
+                  "requestId": "test-only-request-id"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "统一认证／校验／业务错误结构；各方法仅返回实际触发的错误，具体 code 见联调手册。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentError"
+                },
+                "example": {
+                  "error": {
+                    "code": "NOT_FOUND",
+                    "message": "脱敏错误示例"
+                  },
+                  "requestId": "test-only-request-id"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "统一认证／校验／业务错误结构；各方法仅返回实际触发的错误，具体 code 见联调手册。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentError"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "脱敏错误示例"
+                  },
+                  "requestId": "test-only-request-id"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "统一认证／校验／业务错误结构；各方法仅返回实际触发的错误，具体 code 见联调手册。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentError"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "脱敏错误示例"
+                  },
+                  "requestId": "test-only-request-id"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "统一认证／校验／业务错误结构；各方法仅返回实际触发的错误，具体 code 见联调手册。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentError"
+                },
+                "example": {
+                  "error": {
+                    "code": "PAYMENT_CHANNEL_UNAVAILABLE",
+                    "message": "脱敏错误示例"
+                  },
+                  "requestId": "test-only-request-id"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6301,6 +6470,51 @@
           "order",
           "payment",
           "entitlement"
+        ],
+        "additionalProperties": false
+      },
+      "GroupResourceConfiguration": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "groupQrCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "wechatId": {
+            "type": "string"
+          },
+          "claimCode": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "announcement": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "enabled"
         ],
         "additionalProperties": false
       },
