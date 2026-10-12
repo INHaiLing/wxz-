@@ -1,5 +1,7 @@
 from django.contrib import admin
+from django.conf import settings
 from django.urls import include, path
+from django.conf.urls.static import static
 from django.views.generic import RedirectView
 
 from content.api import healthz
@@ -23,4 +25,8 @@ urlpatterns = [
     path("integrations/", include("payments.integration_urls")),
     path("api/student/v1/", include("learning.student_urls")),
     path("api/student/v1/", include("practice.student_urls")),
+    path("api/student/v1/", include("resources.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

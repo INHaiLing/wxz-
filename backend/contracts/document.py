@@ -68,6 +68,11 @@ EXAMPLES = {
     "Resume": {"version": 0, "resume": None, "valid": False, "reason": "NO_RESUME", "start": None},
     "ResumePosition": {"source": "classical", "categoryId": None, "articleId": "quanxue", "type": None,
                        "mode": "writing", "questionId": "example-quanxue-001", "roundId": None, "groupIndex": None},
+    "GroupResourceConfiguration": {
+        "enabled": True, "groupQrCode": "https://example.invalid/media/resources/group/example.webp",
+        "wechatId": "study-example", "claimCode": "EXAMPLE-CODE", "description": "资料领取说明",
+        "announcement": "群公告示例", "updatedAt": "2026-10-12T00:00:00+08:00",
+    },
 }
 
 
@@ -129,6 +134,10 @@ def schemas():
                     "signData": {"type": "string", "description": "签名覆盖的原始 JSON 字符串，严禁解析后重新序列化。"},
                     "paySig": STRING, "signature": STRING}),
         "PaymentPrepared": obj({"order": ref("Order"), "payment": nullable(ref("PaymentPacket")), "entitlement": ref("Entitlement")}),
+        "GroupResourceConfiguration": obj({
+            "enabled": BOOL, "groupQrCode": nullable(STRING), "wechatId": STRING, "claimCode": STRING,
+            "description": STRING, "announcement": STRING, "updatedAt": nullable(DATE_TIME),
+        }, required=["enabled"]),
     }
     for name, item in (("CategoryPage", "Category"), ("ArticlePage", "Article"), ("ProductPage", "Product"),
                        ("Favorites", "FavoriteItem"), ("OrderPage", "Order")):
@@ -141,6 +150,7 @@ def schemas():
 # (response, success status, request serializer, query serializer, idempotency)
 BINDINGS = {
     ("student-wechat-login", "post"): ("LoginResult", 200, "accounts.student_api.LoginInput", None, False),
+    ("student-group-resources", "get"): ("GroupResourceConfiguration", 200, None, "resources.api.EmptyQuery", False),
     ("student-logout", "post"): (None, 204, None, None, False),
     ("student-config", "get"): ("LearningConfig", 200, None, "content.student_api.EmptyQuery", False),
     ("student-categories", "get"): ("CategoryPage", 200, None, "content.student_api.StudentPageQuery", False),

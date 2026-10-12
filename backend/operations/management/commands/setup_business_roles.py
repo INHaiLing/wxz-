@@ -25,6 +25,7 @@ VIEW_PERMISSIONS = frozenset().union(
       ("practiceround", "rounditem", "resumeposition")),
     *(permissions("payments", model, "view_" + model) for model in
       ("order", "paymenttask", "paymentevent")),
+    permissions("resources", "groupresourceconfiguration", "view_groupresourceconfiguration"),
 )
 
 ROLES = {
@@ -41,11 +42,13 @@ ROLES = {
                     | permissions("payments", "paymenttask", "view_paymenttask", "reschedule_paymenttask")
                     | permissions("payments", "paymentevent", "view_paymentevent")
                     | permissions("entitlements", "openingreservation", "view_openingreservation"),
+    "资料群管理": permissions("resources", "groupresourceconfiguration", "view_groupresourceconfiguration",
+                            "change_groupresourceconfiguration"),
 }
 
 
 class Command(BaseCommand):
-    help = "创建缺少的六个业务权限组；保留已有权限，不创建或自动分组任何账号。"
+    help = "创建缺少的业务权限组；保留已有权限，不创建或自动分组任何账号。"
 
     @transaction.atomic
     def handle(self, *args, **options):
