@@ -1,0 +1,12 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p>确认后将按当前内容执行，编辑或发布状态发生变化时本批操作会失败。</p>
+<form method="post">{% csrf_token %}
+  {% for content in contents %}<input type="hidden" name="_selected_action" value="{{ content.pk }}">{% endfor %}
+  <input type="hidden" name="action" value="{{ action_name }}">
+  <input type="hidden" name="confirm_publication" value="{{ action_name }}">
+  <input type="hidden" name="confirmation_token" value="{{ confirmation_token }}">
+  <button type="submit">确认{{ publishing|yesno:"发布,下架" }}</button>
+</form>
+{% endblock %}

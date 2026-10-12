@@ -1,0 +1,9 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div style="max-width: 1000px; color: #334155;">
+  <p><strong>{{ content.id }}</strong> · {{ content.title }} · {{ content.get_kind_display }} · {{ status }}</p>
+  <section style="white-space: pre-wrap; line-height: 1.8; padding: 20px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff;">{{ content.body }}</section>
+  {% if content.reference_answer %}<h3>参考答案</h3><section style="white-space: pre-wrap; line-height: 1.8; padding: 20px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff;">{{ content.reference_answer }}</section>{% endif %}
+  <p><a href="{{ change_url }}">返回内容详情</a></p>
+</div>
+{% endblock %}

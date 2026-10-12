@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "common.apps.CommonConfig",
     "accounts.apps.AccountsConfig",
     "content.apps.ContentConfig",
+    "writing.apps.WritingConfig",
     "entitlements.apps.EntitlementsConfig",
     "contracts.apps.ContractsConfig",
     "operations.apps.OperationsConfig",

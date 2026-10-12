@@ -49,12 +49,24 @@ QUESTION = {
     "type": TYPE, "tag": STRING, "stem": STRING, "answers": {"type": "array", "items": STRING, "minItems": 1},
     "sortOrder": INTEGER, "revision": POSITIVE,
 }
+WRITING = {
+    "id": STRING, "categoryId": STRING, "categoryName": STRING,
+    "genreId": nullable(STRING), "genreName": nullable(STRING),
+    "kind": {"type": "string", "enum": ["template", "example", "past_exam", "exercise"]},
+    "title": STRING, "body": STRING, "referenceAnswer": STRING,
+    "sortOrder": INTEGER, "version": POSITIVE, "publishedAt": DATE_TIME,
+}
 EXAMPLE_QUESTION = {
     "id": "example-quanxue-001", "source": "classical", "categoryId": None, "articleId": "quanxue",
     "type": "word", "tag": "字词", "stem": "吾尝{{0}}而思矣。", "answers": ["终日"], "sortOrder": 1, "revision": 1,
 }
 EXAMPLES = {
     "Question": EXAMPLE_QUESTION,
+    "Writing": {"id": "notice-template-001", "categoryId": "notice", "categoryName": "通知类",
+                "genreId": "notice", "genreName": "通知",
+                "kind": "template", "title": "通知模板", "body": "正文示例\n第二行",
+                "referenceAnswer": "", "sortOrder": 1, "version": 1,
+                "publishedAt": "2026-10-02T00:00:00+08:00"},
     "QuestionDetail": {**EXAMPLE_QUESTION, "access": {"activated": False, "free": True, "pageSize": 20}},
     "Entitlement": {"scope": "all_chinese", "active": False, "permanent": False, "expiresAt": None},
     "Product": {"id": "all-chinese", "scope": "all_chinese", "name": "语文全题库永久权益", "priceFen": 1000,
@@ -87,7 +99,11 @@ def schemas():
         "Category": obj({"id": STRING, "name": STRING, "sortOrder": INTEGER, "publishedCount": INTEGER, "freeCount": INTEGER}),
         "Article": obj({"id": STRING, "title": STRING, "sortOrder": INTEGER, "publishedCount": INTEGER, "freeCount": INTEGER}),
         "Question": obj(QUESTION),
+        "Writing": obj(WRITING),
         "QuestionDetail": obj({**QUESTION, "access": obj({"activated": BOOL, "free": BOOL, "pageSize": CAPACITY})}),
+        "WritingDetail": obj({**WRITING, "access": obj({"activated": BOOL, "free": BOOL, "pageSize": CAPACITY})}),
+        "WritingPage": page(ref("Writing"), access=obj({"activated": BOOL, "pageSize": CAPACITY,
+                    "freeCount": INTEGER, "totalCount": INTEGER, "restrictedCount": INTEGER})),
         "QuestionPage": page(ref("Question"), access=obj({"activated": BOOL, "pageSize": CAPACITY,
                     "freeCount": INTEGER, "totalCount": INTEGER, "restrictedCount": INTEGER})),
         "Entitlement": obj({"scope": {"type": "string", "enum": ["all_chinese"]}, "active": BOOL,
@@ -147,6 +163,8 @@ BINDINGS = {
     ("student-articles", "get"): ("ArticlePage", 200, None, "content.student_api.StudentPageQuery", False),
     ("student-questions", "get"): ("QuestionPage", 200, None, "content.student_api.StudentQuestionQuery", False),
     ("student-question-detail", "get"): ("QuestionDetail", 200, None, "content.student_api.EmptyQuery", False),
+    ("student-writing-list", "get"): ("WritingPage", 200, None, "writing.serializers.WritingQuery", False),
+    ("student-writing-detail", "get"): ("WritingDetail", 200, None, "content.student_api.EmptyQuery", False),
     ("student-products", "get"): ("ProductPage", 200, None, None, False),
     ("student-entitlements", "get"): ("Entitlement", 200, None, None, False),
     ("student-activation-redeem", "post"): ("Redemption", 200, "activation.api.RedeemInput", None, True),
